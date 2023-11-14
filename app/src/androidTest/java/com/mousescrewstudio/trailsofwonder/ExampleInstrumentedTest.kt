@@ -1,4 +1,4 @@
-package com.example.trailsofwonder
+package com.mousescrewstudio.trailsofwonder
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

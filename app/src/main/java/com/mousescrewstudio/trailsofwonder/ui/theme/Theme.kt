@@ -1,4 +1,4 @@
-package com.example.trailsofwonder.ui.theme
+package com.mousescrewstudio.trailsofwonder.ui.theme
 
 import android.app.Activity
 import android.os.Build

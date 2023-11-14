@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "516987686964",
+    "project_id": "trailsofwonder-144e0",
+    "storage_bucket": "trailsofwonder-144e0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:516987686964:android:3e2ec1ebd54b90bad0fa61",
+        "android_client_info": {
+          "package_name": "com.mousescrewstudio.trailsofwonder"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAU_NTF7XWhNulUhbEfBnPXlXnG7d-HgtE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

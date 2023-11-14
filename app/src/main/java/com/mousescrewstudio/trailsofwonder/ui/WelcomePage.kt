@@ -1,4 +1,4 @@
-package com.example.trailsofwonder.ui
+package com.mousescrewstudio.trailsofwonder.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,8 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.trailsofwonder.ui.theme.TrailsOfWonderTheme
 
 @Composable
 fun WelcomePage(

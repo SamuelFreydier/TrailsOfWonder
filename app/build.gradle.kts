@@ -1,14 +1,15 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
-    namespace = "com.example.trailsofwonder"
+    namespace = "com.mousescrewstudio.trailsofwonder"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.trailsofwonder"
+        applicationId = "com.mousescrewstudio.trailsofwonder"
         minSdk = 21
         targetSdk = 33
         versionCode = 1
@@ -50,6 +51,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.startup:startup-runtime:1.1.1")
     val navVersion = "2.5.3"
 
     implementation("androidx.core:core-ktx:1.9.0")
@@ -60,7 +62,12 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material:1.3.1")
     implementation("androidx.navigation:navigation-compose:$navVersion")
+    implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-firestore")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")

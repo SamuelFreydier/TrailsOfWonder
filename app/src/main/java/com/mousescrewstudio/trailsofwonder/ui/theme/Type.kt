@@ -1,4 +1,4 @@
-package com.example.trailsofwonder.ui.theme
+package com.mousescrewstudio.trailsofwonder.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

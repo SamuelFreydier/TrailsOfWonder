@@ -1,4 +1,4 @@
-package com.example.trailsofwonder
+package com.mousescrewstudio.trailsofwonder
 
 import org.junit.Test
 
