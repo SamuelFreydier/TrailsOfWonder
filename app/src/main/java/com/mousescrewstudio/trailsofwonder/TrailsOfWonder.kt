@@ -19,15 +19,18 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.PROFILE_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.WELCOME_ROUTE
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
 import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
+import com.mousescrewstudio.trailsofwonder.ui.LoginPage
 import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
 
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
+    const val LOGIN_ROUTE = "login"
     const val HUNT_CREATION_ROUTE = "hunt-creation"
     const val HUNT_JOIN_ROUTE = "hunt-join"
     const val PROFILE_ROUTE = "profile"
@@ -35,6 +38,7 @@ object Destinations {
 
 sealed class Screen(val route: String) {
     object Welcome: Screen(WELCOME_ROUTE)
+    object Login: Screen(LOGIN_ROUTE)
     object HuntCreation: Screen(HUNT_CREATION_ROUTE)
     object HuntJoin: Screen(HUNT_JOIN_ROUTE)
     object Profile: Screen(PROFILE_ROUTE)
@@ -47,6 +51,7 @@ fun TrailsOfWonderApp(
     startDestination: String = WELCOME_ROUTE,
     screenItems: List<Screen> = listOf(
         Screen.Welcome,
+        Screen.Login,
         Screen.HuntCreation,
         Screen.HuntJoin,
         Screen.Profile
@@ -82,8 +87,10 @@ fun TrailsOfWonderApp(
         composable(WELCOME_ROUTE) { WelcomePage(
             onNavigateToHuntCreation = { navController.navigate(HUNT_CREATION_ROUTE) },
             onNavigateToHuntJoin = { navController.navigate(HUNT_JOIN_ROUTE) },
-            onNavigateToProfile = { navController.navigate(PROFILE_ROUTE) }
+            onNavigateToProfile = { navController.navigate(PROFILE_ROUTE) },
+            onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) }
         ) }
+        composable(LOGIN_ROUTE) { LoginPage() }
         composable(HUNT_CREATION_ROUTE) { HuntCreationPage() }
         composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
         composable(PROFILE_ROUTE) { ProfilePage() }

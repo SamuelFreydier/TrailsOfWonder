@@ -15,7 +15,8 @@ import androidx.compose.ui.Modifier
 fun WelcomePage(
     onNavigateToHuntCreation: () -> Unit,
     onNavigateToHuntJoin: () -> Unit,
-    onNavigateToProfile: () -> Unit
+    onNavigateToProfile: () -> Unit,
+    onNavigateToLogin: () -> Unit
 ) {
 // A surface container using the 'background' color from the theme
     Surface(
@@ -34,6 +35,9 @@ fun WelcomePage(
             }
             Button(onClick = onNavigateToProfile) {
                 Text(text = "Profil")
+            }
+            Button(onClick = onNavigateToLogin) {
+                Text(text = "Login")
             }
         }
     }

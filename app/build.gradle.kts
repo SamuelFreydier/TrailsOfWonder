@@ -52,6 +52,9 @@ android {
 
 dependencies {
     implementation("androidx.startup:startup-runtime:1.1.1")
+    implementation("androidx.compose.ui:ui-text-android:1.5.4")
+    implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+    implementation("androidx.compose.material:material-icons-extended")
     val navVersion = "2.5.3"
 
     implementation("androidx.core:core-ktx:1.9.0")
