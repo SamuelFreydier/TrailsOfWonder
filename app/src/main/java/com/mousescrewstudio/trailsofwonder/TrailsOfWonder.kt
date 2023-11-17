@@ -1,17 +1,27 @@
 package com.mousescrewstudio.trailsofwonder
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,14 +46,13 @@ object Destinations {
     const val PROFILE_ROUTE = "profile"
 }
 
-sealed class Screen(val route: String) {
-    object Welcome: Screen(WELCOME_ROUTE)
-    object Login: Screen(LOGIN_ROUTE)
-    object HuntCreation: Screen(HUNT_CREATION_ROUTE)
-    object HuntJoin: Screen(HUNT_JOIN_ROUTE)
-    object Profile: Screen(PROFILE_ROUTE)
+sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
+    object Welcome: Screen(WELCOME_ROUTE, R.string.welcome, Icons.Filled.Home)
+    object HuntCreation: Screen(HUNT_CREATION_ROUTE, R.string.create, Icons.Filled.AddLocationAlt)
+    object Profile: Screen(PROFILE_ROUTE, R.string.profile, Icons.Filled.AccountCircle)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrailsOfWonderApp(
     modifier: Modifier = Modifier,
@@ -51,48 +60,53 @@ fun TrailsOfWonderApp(
     startDestination: String = WELCOME_ROUTE,
     screenItems: List<Screen> = listOf(
         Screen.Welcome,
-        Screen.Login,
         Screen.HuntCreation,
-        Screen.HuntJoin,
         Screen.Profile
     )
 ) {
     // Barre de navigation du bas
-    /*Scaffold(
+    Scaffold(
         bottomBar = {
             BottomNavigation {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 screenItems.forEach { screen ->
                     BottomNavigationItem(
-                        icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
-                        label = { Text()},
+                        icon = { Icon(screen.imageVector, contentDescription = null) },
+                        label = { Text(stringResource(screen.resourceId))},
                         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                        onClick = { /*TODO*/ }
-
+                        onClick = {
+                            navController.navigate(screen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
                     )
                 }
             }
         }
-    ) {
-
-    }*/
-
-    // Navigation
-    NavHost(
-        modifier = modifier,
-        navController = navController,
-        startDestination = startDestination
-    ) {
-        composable(WELCOME_ROUTE) { WelcomePage(
-            onNavigateToHuntCreation = { navController.navigate(HUNT_CREATION_ROUTE) },
-            onNavigateToHuntJoin = { navController.navigate(HUNT_JOIN_ROUTE) },
-            onNavigateToProfile = { navController.navigate(PROFILE_ROUTE) },
-            onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) }
-        ) }
-        composable(LOGIN_ROUTE) { LoginPage() }
-        composable(HUNT_CREATION_ROUTE) { HuntCreationPage() }
-        composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
-        composable(PROFILE_ROUTE) { ProfilePage() }
+    ) { innerPadding ->
+        // Navigation
+        NavHost(
+            modifier = modifier.padding(innerPadding),
+            navController = navController,
+            startDestination = startDestination
+        ) {
+            composable(WELCOME_ROUTE) { WelcomePage(
+                onNavigateToHuntCreation = { navController.navigate(HUNT_CREATION_ROUTE) },
+                onNavigateToHuntJoin = { navController.navigate(HUNT_JOIN_ROUTE) },
+                onNavigateToProfile = { navController.navigate(PROFILE_ROUTE) },
+                onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) }
+            ) }
+            composable(LOGIN_ROUTE) { LoginPage() }
+            composable(HUNT_CREATION_ROUTE) { HuntCreationPage() }
+            composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
+            composable(PROFILE_ROUTE) { ProfilePage() }
+        }
     }
+
+
 }
