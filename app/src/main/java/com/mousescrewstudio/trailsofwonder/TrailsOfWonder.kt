@@ -1,6 +1,5 @@
 package com.mousescrewstudio.trailsofwonder
 
-import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
@@ -8,9 +7,7 @@ import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddLocationAlt
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -27,20 +24,26 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.mousescrewstudio.trailsofwonder.Destinations.FORGOT_PASSWORD_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.PROFILE_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.SIGNUP_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.WELCOME_ROUTE
+import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
 import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
 import com.mousescrewstudio.trailsofwonder.ui.LoginPage
 import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
+import com.mousescrewstudio.trailsofwonder.ui.SignupPage
 
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
     const val LOGIN_ROUTE = "login"
+    const val SIGNUP_ROUTE = "signup"
+    const val FORGOT_PASSWORD_ROUTE = "forgotpassword"
     const val HUNT_CREATION_ROUTE = "hunt-creation"
     const val HUNT_JOIN_ROUTE = "hunt-join"
     const val PROFILE_ROUTE = "profile"
@@ -101,7 +104,16 @@ fun TrailsOfWonderApp(
                 onNavigateToProfile = { navController.navigate(PROFILE_ROUTE) },
                 onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) }
             ) }
-            composable(LOGIN_ROUTE) { LoginPage() }
+            composable(LOGIN_ROUTE) { LoginPage(
+                onNavigateToForgotPassword = { navController.navigate(FORGOT_PASSWORD_ROUTE) },
+                onNavigateToSignup = { navController.navigate(SIGNUP_ROUTE) }
+            ) }
+            composable(FORGOT_PASSWORD_ROUTE) { ForgotPasswordPage(
+                onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) }
+            ) }
+            composable(SIGNUP_ROUTE) { SignupPage(
+                onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) }
+            ) }
             composable(HUNT_CREATION_ROUTE) { HuntCreationPage() }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
             composable(PROFILE_ROUTE) { ProfilePage() }
