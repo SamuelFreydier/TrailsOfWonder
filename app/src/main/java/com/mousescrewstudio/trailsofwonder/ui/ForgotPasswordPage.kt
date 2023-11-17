@@ -1,5 +1,6 @@
 package com.mousescrewstudio.trailsofwonder.ui
 
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,13 +25,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.mousescrewstudio.trailsofwonder.ui.components.showErrorDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordPage(
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    onCodeSentSucess: () -> Unit
 ) {
     val typography = MaterialTheme.typography
     val colors = MaterialTheme.colorScheme
@@ -65,6 +71,7 @@ fun ForgotPasswordPage(
             )
 
             var email by remember { mutableStateOf(TextFieldValue()) }
+            val context = LocalContext.current
 
             OutlinedTextField(
                 value = email,
@@ -83,7 +90,7 @@ fun ForgotPasswordPage(
 
             Button(
                 onClick = {
-                    // Handle password reset action
+                    sendPasswordResetEmail(email.text, context, onCodeSentSucess)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -99,6 +106,40 @@ fun ForgotPasswordPage(
             TextButton(onClick = { onNavigateToLogin() }) {
                 Text("Annuler")
             }
+        }
+    }
+}
+
+fun sendPasswordResetEmail(
+    email: String,
+    context: Context,
+    onCodeSentSucess: () -> Unit
+) {
+    val auth = FirebaseAuth.getInstance()
+    auth.sendPasswordResetEmail(email)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                onCodeSentSucess()
+            } else {
+                // La réinitialisation du mot de passe a échoué
+                val exception = task.exception
+                if (exception != null) {
+                    handleResetPasswordError(exception, context)
+                }
+            }
+        }
+}
+
+// Méthode pour gérer les erreurs lors de l'envoi d'un e-mail de réinitialisation de mot de passe
+fun handleResetPasswordError(exception: Exception, context: Context) {
+    when (exception) {
+        is FirebaseAuthInvalidUserException -> {
+            // L'utilisateur avec cette adresse e-mail n'existe pas
+            showErrorDialog("Aucun utilisateur avec cette adresse e-mail n'a été trouvé.", context)
+        }
+        else -> {
+            // Gérer d'autres erreurs
+            showErrorDialog("Une erreur s'est produite lors de l'envoi de l'e-mail de réinitialisation.", context)
         }
     }
 }

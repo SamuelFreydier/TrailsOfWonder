@@ -1,7 +1,8 @@
 package com.mousescrewstudio.trailsofwonder.ui
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,24 +16,29 @@ import androidx.compose.material3.*
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType.Companion.Password
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.mousescrewstudio.trailsofwonder.MainActivity
+import com.mousescrewstudio.trailsofwonder.ui.components.showErrorDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginPage(
     onNavigateToForgotPassword: () -> Unit,
-    onNavigateToSignup: () -> Unit
+    onNavigateToSignup: () -> Unit,
+    onLoginSuccess: () -> Unit
 ) {
     val typography = MaterialTheme.typography
     val colors = MaterialTheme.colorScheme
@@ -66,14 +72,15 @@ fun LoginPage(
                     .padding(bottom = 16.dp)
             )
 
-            var username by remember { mutableStateOf(TextFieldValue()) }
+            var email by remember { mutableStateOf(TextFieldValue()) }
             var password by remember { mutableStateOf(TextFieldValue()) }
             var isPasswordVisible by remember { mutableStateOf(false) }
+            val context = LocalContext.current
 
             OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
@@ -88,7 +95,7 @@ fun LoginPage(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text("Mot de passe") },
                 trailingIcon = {
                     IconButton(
                         onClick = {
@@ -139,7 +146,7 @@ fun LoginPage(
 
             Button(
                 onClick = {
-                    // Handle login action
+                    signInWithEmailAndPassword(email.text, password.text, onLoginSuccess, context)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,3 +159,44 @@ fun LoginPage(
         }
     }
 }
+
+private fun signInWithEmailAndPassword(
+    email: String,
+    password: String,
+    onSignInSuccess: () -> Unit,
+    context: Context
+) {
+    val auth = FirebaseAuth.getInstance()
+    auth.signInWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                onSignInSuccess.invoke()
+            } else {
+                val exception = task.exception
+                if (exception != null) {
+                    handleLoginError(exception, context)
+                }
+            }
+        }
+}
+
+// Méthode pour gérer les erreurs lors de la connexion
+private fun handleLoginError(exception: Exception, context: Context) {
+    when (exception) {
+        is FirebaseAuthInvalidUserException -> {
+            // L'utilisateur n'existe pas
+            showErrorDialog("L'utilisateur n'existe pas.", context)
+        }
+        is FirebaseAuthInvalidCredentialsException -> {
+            // Les informations d'identification sont incorrectes
+            showErrorDialog("Les informations d'identification sont incorrectes.", context)
+        }
+        else -> {
+            // Gérer d'autres erreurs
+            showErrorDialog("Une erreur s'est produite lors de la connexion.", context)
+        }
+    }
+}
+
+
+

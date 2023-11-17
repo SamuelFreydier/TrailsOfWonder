@@ -1,5 +1,6 @@
 package com.mousescrewstudio.trailsofwonder.ui
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -34,18 +35,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType.Companion.Password
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthUserCollisionException
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.mousescrewstudio.trailsofwonder.R
+import com.mousescrewstudio.trailsofwonder.ui.components.showErrorDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupPage(
-    onNavigateToLogin: () -> Unit
+    onNavigateToLogin: () -> Unit,
+    onSignUpSuccess: () -> Unit
 ) {
     val typography = MaterialTheme.typography
     val colors = MaterialTheme.colorScheme
@@ -83,6 +91,7 @@ fun SignupPage(
             var email by remember { mutableStateOf(TextFieldValue()) }
             var password by remember { mutableStateOf(TextFieldValue()) }
             var isPasswordVisible by remember { mutableStateOf(false) }
+            val context = LocalContext.current
 
             OutlinedTextField(
                 value = username,
@@ -154,7 +163,7 @@ fun SignupPage(
 
             Button(
                 onClick = {
-                    // Handle sign up action
+                    createAccount(email.text, password.text, onSignUpSuccess, context)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -170,6 +179,48 @@ fun SignupPage(
             TextButton(onClick = onNavigateToLogin) {
                 Text("Connexion")
             }
+        }
+    }
+}
+
+private fun createAccount(
+    email: String,
+    password: String,
+    onSignUpSuccess: () -> Unit,
+    context: Context
+) {
+    val auth = FirebaseAuth.getInstance()
+    auth.createUserWithEmailAndPassword(email, password)
+        .addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                onSignUpSuccess.invoke()
+            } else {
+                val exception = task.exception
+                if (exception != null) {
+                    handleSignUpError(exception, context)
+                }
+            }
+        }
+}
+
+// Méthode pour gérer les erreurs lors de la création du compte
+private fun handleSignUpError(exception: Exception, context: Context) {
+    when (exception) {
+        is FirebaseAuthWeakPasswordException -> {
+            // Mot de passe faible
+            showErrorDialog("Le mot de passe est trop faible.", context)
+        }
+        is FirebaseAuthInvalidCredentialsException -> {
+            // E-mail invalide
+            showErrorDialog("L'adresse e-mail est invalide.", context)
+        }
+        is FirebaseAuthUserCollisionException -> {
+            // L'utilisateur avec cette adresse e-mail existe déjà
+            showErrorDialog("Un compte avec cette adresse e-mail existe déjà.", context)
+        }
+        else -> {
+            // Gérer d'autres erreurs
+            showErrorDialog("Une erreur s'est produite lors de la création du compte.", context)
         }
     }
 }

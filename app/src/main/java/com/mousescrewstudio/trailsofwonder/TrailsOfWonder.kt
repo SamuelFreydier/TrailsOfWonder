@@ -28,22 +28,28 @@ import com.mousescrewstudio.trailsofwonder.Destinations.FORGOT_PASSWORD_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.NEW_PASSWORD_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.PROFILE_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.SIGNUP_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.VERIFY_EMAIL_CODE_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.WELCOME_ROUTE
 import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
 import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
 import com.mousescrewstudio.trailsofwonder.ui.LoginPage
+import com.mousescrewstudio.trailsofwonder.ui.NewPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
 import com.mousescrewstudio.trailsofwonder.ui.SignupPage
+import com.mousescrewstudio.trailsofwonder.ui.VerifyEmailCodePage
 
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
     const val LOGIN_ROUTE = "login"
     const val SIGNUP_ROUTE = "signup"
     const val FORGOT_PASSWORD_ROUTE = "forgotpassword"
+    const val VERIFY_EMAIL_CODE_PAGE = "verifyemailcode"
+    const val NEW_PASSWORD_PAGE = "newpassword"
     const val HUNT_CREATION_ROUTE = "hunt-creation"
     const val HUNT_JOIN_ROUTE = "hunt-join"
     const val PROFILE_ROUTE = "profile"
@@ -106,13 +112,25 @@ fun TrailsOfWonderApp(
             ) }
             composable(LOGIN_ROUTE) { LoginPage(
                 onNavigateToForgotPassword = { navController.navigate(FORGOT_PASSWORD_ROUTE) },
-                onNavigateToSignup = { navController.navigate(SIGNUP_ROUTE) }
+                onNavigateToSignup = { navController.navigate(SIGNUP_ROUTE) },
+                onLoginSuccess = { navController.navigate(WELCOME_ROUTE) }
             ) }
             composable(FORGOT_PASSWORD_ROUTE) { ForgotPasswordPage(
-                onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) }
+                onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) },
+                onCodeSentSucess = { navController.navigate(LOGIN_ROUTE) }
             ) }
             composable(SIGNUP_ROUTE) { SignupPage(
-                onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) }
+                onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) },
+                onSignUpSuccess = { navController.navigate(WELCOME_ROUTE) }
+            ) }
+            // NE SERT A RIEN LA DEMARCHE SE FAIT PAR EMAIL
+            composable(VERIFY_EMAIL_CODE_PAGE) { VerifyEmailCodePage(
+                onVerifyCode = { navController.navigate(NEW_PASSWORD_PAGE) },
+                onResendCode = { navController.navigate(FORGOT_PASSWORD_ROUTE) }
+            ) }
+            // IDEM
+            composable(NEW_PASSWORD_PAGE) { NewPasswordPage(
+                onResetPassword = {navController.navigate(LOGIN_ROUTE) }
             ) }
             composable(HUNT_CREATION_ROUTE) { HuntCreationPage() }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
