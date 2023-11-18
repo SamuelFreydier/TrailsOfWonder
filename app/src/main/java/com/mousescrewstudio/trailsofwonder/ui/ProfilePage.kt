@@ -1,7 +1,5 @@
 package com.mousescrewstudio.trailsofwonder.ui
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,11 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -22,12 +18,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.mousescrewstudio.trailsofwonder.R
+import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
+import com.mousescrewstudio.trailsofwonder.ui.database.getUserHunts
 
 data class TreasureHunt(val title: String)
 
@@ -41,6 +39,19 @@ fun ProfilePage(
     onSettingsClick: () -> Unit,
     onEditTreasureHuntClick: (String) -> Unit
 ) {
+    var userHunts by remember { mutableStateOf(emptyList<Hunt>()) }
+
+    getUserHunts(
+        onSuccess = { hunts ->
+            userHunts = hunts
+            println("Chasses récupérées avec succès")
+        },
+        onFailure = { exception ->
+            // Erreur à gérer
+            println("Erreur lors de la récupération des chasses : $exception")
+        }
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,7 +79,7 @@ fun ProfilePage(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            text = "Your Treasure Hunts",
+            text = "Vos chasses au trésor",
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.primary
         )
@@ -77,9 +88,9 @@ fun ProfilePage(
 
         // Liste des chasses au trésor de l'utilisateur
         LazyColumn {
-            items(dummyTreasureHunts) { treasureHunt ->
-                TreasureHuntItem(
-                    treasureHunt = treasureHunt,
+            items(userHunts) { userHunt ->
+                ProfileHuntItem(
+                    hunt = userHunt,
                     onEditClick = { onEditTreasureHuntClick(it) }
                 )
             }
@@ -87,14 +98,14 @@ fun ProfilePage(
     }
 }
 @Composable
-fun TreasureHuntItem(treasureHunt: TreasureHunt, onEditClick: (String) -> Unit) {
+fun ProfileHuntItem(hunt: Hunt, onEditClick: (String) -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
     ) {
         Text(
-            text = treasureHunt.title,
+            text = hunt.huntName,
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.primary
         )
@@ -102,12 +113,12 @@ fun TreasureHuntItem(treasureHunt: TreasureHunt, onEditClick: (String) -> Unit) 
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { onEditClick(treasureHunt.title) },
+            onClick = { onEditClick(hunt.huntName) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp)
         ) {
-            Text("Edit Hunt")
+            Text("Éditer")
         }
     }
 }

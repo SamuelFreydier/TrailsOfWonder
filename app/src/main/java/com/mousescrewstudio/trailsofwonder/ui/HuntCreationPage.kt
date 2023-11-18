@@ -51,7 +51,8 @@ import java.util.UUID
 fun HuntCreationPage(
     onSaveClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    onPublishClick: () -> Unit
+    onPublishClick: () -> Unit,
+    onIndicesClick: () -> Unit
 ) {
     var huntName by remember { mutableStateOf(TextFieldValue()) }
     var location by remember { mutableStateOf(TextFieldValue()) }
@@ -184,7 +185,7 @@ fun HuntCreationPage(
 
             // Indices button
             Button(
-                onClick = { showIndicesPage = true },
+                onClick = onIndicesClick,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)

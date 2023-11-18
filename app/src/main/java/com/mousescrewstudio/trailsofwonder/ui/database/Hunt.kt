@@ -5,14 +5,16 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 val db = FirebaseFirestore.getInstance()
 
-data class Hunt(
-    val huntName: String,
-    val location: String,
-    val difficulty: Int,
-    val durationHours: Int,
-    val durationMinutes: Int,
-    val tags: List<String>
-)
+data class Hunt (
+    var huntName: String = "",
+    var location: String = "",
+    var difficulty: Int = 0,
+    var durationHours: Int = 0,
+    var durationMinutes: Int = 0,
+    var tags: List<String> = emptyList()
+) {
+    //constructor(): this("", "", 0, 0, 0, emptyList())
+}
 
 fun saveHunt(hunt: Hunt) {
     val user = FirebaseAuth.getInstance().currentUser
@@ -27,9 +29,11 @@ fun saveHunt(hunt: Hunt) {
             .addOnSuccessListener { documentReference ->
                 // Chasse ajoutée avec succès
                 // documentReference.id contient l'id du nouveau document
+                println("DocumentReference : ${documentReference.id}")
             }
-            .addOnFailureListener { e ->
+            .addOnFailureListener { exception ->
                 // Gestion d'erreur
+                println("Erreur lors de la sauvegarde : $exception")
             }
     }
 }
@@ -46,12 +50,12 @@ fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit
             .collection("userHunts")
             .get()
             .addOnSuccessListener { result ->
-                val hunts = mutableListOf<Hunt>()
-                for (document in result) {
+                val hunts = result.toObjects(Hunt::class.java)
+                /*for (document in result) {
                     // Convertis chaque document en instance de la classe Hunt
-                    val hunt = document.toObject(Hunt::class.java)
-                    hunts.add(hunt)
-                }
+                    //val hunt : Hunt = document.toObject(Hunt::class.java)
+                    //hunts.add(hunt)
+                }*/
                 onSuccess(hunts)
             }
             .addOnFailureListener { exception ->
@@ -59,3 +63,14 @@ fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit
             }
     }
 }
+/*
+fun parseHuntDocument(document: DocumentSnapshot): Hunt? {
+    return try {
+        val json = Json { ignoreUnknownKeys = true }
+        val hunt = json.decodeFromString(Hunt.serializer(), document.data?.toJson())
+        hunt
+    } catch (e: Exception) {
+        // Gérez l'erreur de désérialisation ici
+        null
+    }
+}*/

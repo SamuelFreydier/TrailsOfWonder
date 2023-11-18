@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.gms.google-services")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -55,6 +56,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-text-android:1.5.4")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
     val navVersion = "2.5.3"
 
     implementation("androidx.core:core-ktx:1.9.0")

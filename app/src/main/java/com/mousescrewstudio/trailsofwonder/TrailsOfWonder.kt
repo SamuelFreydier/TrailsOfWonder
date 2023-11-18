@@ -34,6 +34,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.Destinations.FORGOT_PASSWORD_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.INDICES_RECAP_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.NEW_PASSWORD_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.PROFILE_ROUTE
@@ -45,6 +46,7 @@ import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
 import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
+import com.mousescrewstudio.trailsofwonder.ui.IndicesRecapPage
 import com.mousescrewstudio.trailsofwonder.ui.LoginPage
 import com.mousescrewstudio.trailsofwonder.ui.NewPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
@@ -63,6 +65,7 @@ object Destinations {
     const val HUNT_JOIN_ROUTE = "hunt-join"
     const val PROFILE_ROUTE = "profile"
     const val SETTINGS_ROUTE = "settings"
+    const val INDICES_RECAP_ROUTE = "indices-recap"
 }
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
@@ -95,6 +98,7 @@ fun TrailsOfWonderApp(
         HUNT_CREATION_ROUTE -> { bottomBarState.value = true }
         HUNT_JOIN_ROUTE -> { bottomBarState.value = true }
         SETTINGS_ROUTE -> { bottomBarState.value = false }
+        INDICES_RECAP_ROUTE -> { bottomBarState.value = false }
     }
 
     // Barre de navigation du bas
@@ -165,7 +169,8 @@ fun TrailsOfWonderApp(
             composable(HUNT_CREATION_ROUTE) { HuntCreationPage(
                 onDeleteClick = {},
                 onPublishClick = {},
-                onSaveClick = { navController.navigate(HUNT_CREATION_ROUTE) }
+                onSaveClick = { navController.navigate(HUNT_CREATION_ROUTE) },
+                onIndicesClick = { navController.navigate(INDICES_RECAP_ROUTE) }
             ) }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
             composable(PROFILE_ROUTE) {
@@ -186,6 +191,12 @@ fun TrailsOfWonderApp(
                         }
                     },
                     onBackClick = { navController.navigate(PROFILE_ROUTE) }
+                )
+            }
+            composable(INDICES_RECAP_ROUTE) {
+                IndicesRecapPage(
+                    onBackClick = { navController.navigate(HUNT_CREATION_ROUTE) },
+                    onAddIndexClick = { }
                 )
             }
         }
