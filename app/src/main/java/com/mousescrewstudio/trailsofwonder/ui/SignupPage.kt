@@ -46,6 +46,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.auth.UserProfileChangeRequest
 import com.mousescrewstudio.trailsofwonder.R
 import com.mousescrewstudio.trailsofwonder.ui.components.showErrorDialog
 
@@ -163,7 +164,7 @@ fun SignupPage(
 
             Button(
                 onClick = {
-                    createAccount(email.text, password.text, onSignUpSuccess, context)
+                    createAccount(username.text, email.text, password.text, onSignUpSuccess, context)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -184,6 +185,7 @@ fun SignupPage(
 }
 
 private fun createAccount(
+    username: String,
     email: String,
     password: String,
     onSignUpSuccess: () -> Unit,
@@ -193,7 +195,24 @@ private fun createAccount(
     auth.createUserWithEmailAndPassword(email, password)
         .addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                onSignUpSuccess.invoke()
+                // Utilisateur créé avec succès
+                // MaJ du profil avec le username
+                val user = auth.currentUser
+                val profileUpdates = UserProfileChangeRequest.Builder()
+                    .setDisplayName(username)
+                    .build()
+
+                user?.updateProfile(profileUpdates)
+                    ?.addOnCompleteListener { updateTask ->
+                        if(updateTask.isSuccessful) {
+                            onSignUpSuccess.invoke()
+                        } else {
+                            val exception = updateTask.exception
+                            if (exception != null) {
+                                handleSignUpError(exception, context)
+                            }
+                        }
+                    }
             } else {
                 val exception = task.exception
                 if (exception != null) {

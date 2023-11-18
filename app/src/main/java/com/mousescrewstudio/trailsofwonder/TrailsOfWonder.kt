@@ -1,6 +1,9 @@
 package com.mousescrewstudio.trailsofwonder
 
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
@@ -8,12 +11,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Login
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -24,6 +30,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.Destinations.FORGOT_PASSWORD_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
@@ -59,6 +66,7 @@ sealed class Screen(val route: String, @StringRes val resourceId: Int, val image
     object Welcome: Screen(WELCOME_ROUTE, R.string.welcome, Icons.Filled.Home)
     object HuntCreation: Screen(HUNT_CREATION_ROUTE, R.string.create, Icons.Filled.AddLocationAlt)
     object Profile: Screen(PROFILE_ROUTE, R.string.profile, Icons.Filled.AccountCircle)
+    object Login: Screen(LOGIN_ROUTE, R.string.login, Icons.Filled.Login)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,27 +81,45 @@ fun TrailsOfWonderApp(
         Screen.Profile
     )
 ) {
+    val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    when (navBackStackEntry?.destination?.route) {
+        WELCOME_ROUTE -> { bottomBarState.value = true }
+        LOGIN_ROUTE -> { bottomBarState.value = false }
+        SIGNUP_ROUTE -> {bottomBarState.value = false}
+        FORGOT_PASSWORD_ROUTE -> { bottomBarState.value = false}
+        PROFILE_ROUTE -> { bottomBarState.value = true }
+        HUNT_CREATION_ROUTE -> { bottomBarState.value = true }
+        HUNT_JOIN_ROUTE -> { bottomBarState.value = true }
+    }
+
     // Barre de navigation du bas
     Scaffold(
         bottomBar = {
-            BottomNavigation {
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                screenItems.forEach { screen ->
-                    BottomNavigationItem(
-                        icon = { Icon(screen.imageVector, contentDescription = null) },
-                        label = { Text(stringResource(screen.resourceId))},
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                        onClick = {
-                            navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            AnimatedVisibility(
+                visible = bottomBarState.value,
+                enter = slideInVertically(initialOffsetY = {it}),
+                exit = slideOutVertically(targetOffsetY = {it})
+            ) {
+                BottomNavigation() {
+                    val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentDestination = navBackStackEntry?.destination
+                    screenItems.forEach { screen ->
+                        BottomNavigationItem(
+                            icon = { Icon(screen.imageVector, contentDescription = null) },
+                            label = { Text(stringResource(screen.resourceId))},
+                            selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                            onClick = {
+                                navController.navigate(screen.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -134,7 +160,21 @@ fun TrailsOfWonderApp(
             ) }
             composable(HUNT_CREATION_ROUTE) { HuntCreationPage() }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
-            composable(PROFILE_ROUTE) { ProfilePage() }
+            composable(PROFILE_ROUTE) {
+                ProfilePage(
+                    username = FirebaseAuth.getInstance().currentUser?.displayName.toString(),
+                    onLogoutClick = {
+                        FirebaseAuth.getInstance().signOut()
+                        navController.navigate(LOGIN_ROUTE) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }
+                    },
+                    onSettingsClick = {},
+                    onEditTreasureHuntClick = {}
+                )
+            }
         }
     }
 

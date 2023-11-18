@@ -3,4 +3,5 @@
     <string name="welcome">Accueil</string>
     <string name="profile">Profil</string>
     <string name="create">Création</string>
+    <string name="login">Connexion</string>
 </resources>
