@@ -37,6 +37,7 @@ import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.NEW_PASSWORD_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.PROFILE_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.SETTINGS_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.SIGNUP_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.VERIFY_EMAIL_CODE_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.WELCOME_ROUTE
@@ -47,6 +48,7 @@ import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
 import com.mousescrewstudio.trailsofwonder.ui.LoginPage
 import com.mousescrewstudio.trailsofwonder.ui.NewPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
+import com.mousescrewstudio.trailsofwonder.ui.SettingsPage
 import com.mousescrewstudio.trailsofwonder.ui.SignupPage
 import com.mousescrewstudio.trailsofwonder.ui.VerifyEmailCodePage
 
@@ -60,6 +62,7 @@ object Destinations {
     const val HUNT_CREATION_ROUTE = "hunt-creation"
     const val HUNT_JOIN_ROUTE = "hunt-join"
     const val PROFILE_ROUTE = "profile"
+    const val SETTINGS_ROUTE = "settings"
 }
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
@@ -91,6 +94,7 @@ fun TrailsOfWonderApp(
         PROFILE_ROUTE -> { bottomBarState.value = true }
         HUNT_CREATION_ROUTE -> { bottomBarState.value = true }
         HUNT_JOIN_ROUTE -> { bottomBarState.value = true }
+        SETTINGS_ROUTE -> { bottomBarState.value = false }
     }
 
     // Barre de navigation du bas
@@ -158,11 +162,21 @@ fun TrailsOfWonderApp(
             composable(NEW_PASSWORD_PAGE) { NewPasswordPage(
                 onResetPassword = {navController.navigate(LOGIN_ROUTE) }
             ) }
-            composable(HUNT_CREATION_ROUTE) { HuntCreationPage() }
+            composable(HUNT_CREATION_ROUTE) { HuntCreationPage(
+                onDeleteClick = {},
+                onPublishClick = {},
+                onSaveClick = {}
+            ) }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
             composable(PROFILE_ROUTE) {
                 ProfilePage(
                     username = FirebaseAuth.getInstance().currentUser?.displayName.toString(),
+                    onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
+                    onEditTreasureHuntClick = {}
+                )
+            }
+            composable(SETTINGS_ROUTE) {
+                SettingsPage(
                     onLogoutClick = {
                         FirebaseAuth.getInstance().signOut()
                         navController.navigate(LOGIN_ROUTE) {
@@ -171,8 +185,7 @@ fun TrailsOfWonderApp(
                             }
                         }
                     },
-                    onSettingsClick = {},
-                    onEditTreasureHuntClick = {}
+                    onBackClick = { navController.navigate(PROFILE_ROUTE) }
                 )
             }
         }

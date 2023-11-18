@@ -38,7 +38,6 @@ val dummyTreasureHunts = List(3) {
 @Composable
 fun ProfilePage(
     username: String,
-    onLogoutClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onEditTreasureHuntClick: (String) -> Unit
 ) {
@@ -64,17 +63,6 @@ fun ProfilePage(
             IconButton(onClick = { onSettingsClick() }) {
                 Icon(imageVector = Icons.Default.Settings, contentDescription = null)
             }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { onLogoutClick() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-        ) {
-            Text("Déconnexion")
         }
 
         Spacer(modifier = Modifier.height(16.dp))
