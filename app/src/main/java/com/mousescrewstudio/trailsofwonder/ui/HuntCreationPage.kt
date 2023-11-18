@@ -42,6 +42,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
+import com.mousescrewstudio.trailsofwonder.ui.database.saveHunt
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +55,6 @@ fun HuntCreationPage(
 ) {
     var huntName by remember { mutableStateOf(TextFieldValue()) }
     var location by remember { mutableStateOf(TextFieldValue()) }
-    var difficulty by remember { mutableIntStateOf(0) }
     val difficultyItems = listOf("Facile", "Moyen", "Difficile")
     var difficultyExpanded by remember { mutableStateOf(false) }
     var difficultyIndex by remember { mutableIntStateOf(0) }
@@ -199,7 +200,22 @@ fun HuntCreationPage(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Button(
-                    onClick = { onSaveClick() },
+                    onClick = {
+                        // Récupération des données de la chasse dans une seule structure
+                        val huntData = Hunt(
+                            huntName = huntName.text,
+                            location = location.text,
+                            difficulty = difficultyIndex,
+                            durationHours = durationHours,
+                            durationMinutes = durationMinutes,
+                            tags = tagsWithIds.map { it.tag }
+                        )
+
+                        // Sauvegarde de la chasse dans Firestore
+                        saveHunt(huntData)
+
+                        onSaveClick()
+                    },
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp)

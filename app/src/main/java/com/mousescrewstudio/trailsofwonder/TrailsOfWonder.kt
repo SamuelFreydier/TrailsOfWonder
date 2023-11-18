@@ -165,7 +165,7 @@ fun TrailsOfWonderApp(
             composable(HUNT_CREATION_ROUTE) { HuntCreationPage(
                 onDeleteClick = {},
                 onPublishClick = {},
-                onSaveClick = {}
+                onSaveClick = { navController.navigate(HUNT_CREATION_ROUTE) }
             ) }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
             composable(PROFILE_ROUTE) {
