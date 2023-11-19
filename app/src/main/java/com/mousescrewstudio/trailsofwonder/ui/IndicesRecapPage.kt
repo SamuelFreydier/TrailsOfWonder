@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,6 +39,7 @@ import com.mousescrewstudio.trailsofwonder.ui.database.Indice
 import com.mousescrewstudio.trailsofwonder.ui.database.deleteIndice
 import com.mousescrewstudio.trailsofwonder.ui.database.getIndicesFromHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getUserHunts
+import com.mousescrewstudio.trailsofwonder.ui.database.updateIndiceOrder
 import kotlinx.parcelize.Parcelize
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
@@ -97,20 +100,37 @@ fun VerticalReorderList(
             println("Erreur lors de la récupération des indices : $exception")
         }
     )
+
     //var indices by rememberSaveable { mutableStateOf(List(10) { IndexItem("Index $it") }) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         huntIndices = huntIndices.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
+
+        // Mettre à jour l'ordre local
+        huntIndices.forEachIndexed { index, indice ->
+            updateIndiceOrder(indice, index)
+        }
+
     })
+
+    DisposableEffect(state.listState) {
+        onDispose {
+            // Lorsque la liste est quittée, mettez à jour l'ordre dans Firebase
+            huntIndices.forEachIndexed { index, indice ->
+                updateIndiceOrder(indice, index)
+            }
+        }
+    }
+
     LazyColumn(
         state = state.listState,
         modifier = Modifier
             .reorderable(state)
             .detectReorderAfterLongPress(state)
     ) {
-        items(huntIndices, { it }) { item ->
-            ReorderableItem(state, key = item) { isDragging ->
+        items(huntIndices, { it.order }) { item ->
+            ReorderableItem(state, key = item.order) { isDragging ->
                 val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                 Column(
                     modifier = Modifier
@@ -166,6 +186,7 @@ fun VerticalReorderList(
         }
     }
 }
+
 
 
 

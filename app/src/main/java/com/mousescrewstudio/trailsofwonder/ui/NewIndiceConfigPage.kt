@@ -104,8 +104,7 @@ fun NewIndiceConfigPage(
                         )
 
                     if (newIndice != null) {
-                        saveIndice(newIndice)
-                        onIndiceConfigured(newIndice)
+                        saveIndice(newIndice, onIndiceConfigured)
                     }
                 },
                 modifier = Modifier
