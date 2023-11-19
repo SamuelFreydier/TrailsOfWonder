@@ -33,21 +33,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
-import com.mousescrewstudio.trailsofwonder.ui.database.getAllUser
+import com.mousescrewstudio.trailsofwonder.ui.database.getAllHunt
 import java.util.UUID
 
-var listUID = getAllUser()
 
 @Composable
 fun HuntJoinPage(
-    navController: NavController
+    navController: NavController,
+    chatPage: () -> Unit
 ) {
 
-    //var listUID by remember { mutableStateOf(mutableListOf<String>()) }
-    //listUID = getAllUser()
-    println(listUID)
-
-    var data by remember { mutableStateOf(generateDummyHunts()) }
+    var data by remember { mutableStateOf(generateHunts()) }
 
     var query by remember { mutableStateOf("") }
     var tagText by remember { mutableStateOf(TextFieldValue()) }
@@ -62,6 +58,14 @@ fun HuntJoinPage(
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary
         )
+
+        Button(
+            onClick = { navController.navigate("ChatPage/DummyPerson") }
+        ) {
+            Text("Chat")
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
         SearchBar(
             searchQuery = query,
             onSearchQueryChange = { newQuery ->
@@ -114,7 +118,6 @@ fun HuntJoinPage(
         })
 
         Spacer(modifier = Modifier.height(16.dp))
-
 
         SearchResultsHunt(data, navController)
     }
@@ -195,7 +198,7 @@ fun SearchResultsHunt(
 
 fun filterHunt(query: String, tagsWithIds: List<TagItemData>) : List<Hunt>{
 
-    val res = generateDummyHunts().filter {
+    val res = generateHunts().filter {
         it.huntName.contains(query, ignoreCase = true) //|| it.tags.contains(tagsWithIds)
     }
 
@@ -211,16 +214,40 @@ fun filterHunt(query: String, tagsWithIds: List<TagItemData>) : List<Hunt>{
 }
 
 
-fun generateDummyHunts(): List<Hunt> {
-    return listOf(
+fun generateHunts(): List<Hunt> {
+
+    var x = mutableListOf<Hunt>()
+
+    getAllHunt (
+        onSuccess = { hunts ->
+            x = hunts
+            println("Chasses récupérées avec succès $x")
+        },
+        onFailure = {
+            x = listOf(
+                Hunt("Un", "Paris", 1, 1, 1, listOf<String>("1")),
+                Hunt("Deux", "Londre", 1, 1, 1, listOf<String>("2")),
+                Hunt("Trois", "Budapest", 1, 1, 1, listOf<String>("2")),
+                Hunt("Quatre", "Fontaine", 1, 1, 1, listOf<String>("4")),
+                Hunt("Cinq", "Numazu", 1, 1, 1, listOf<String>("5")),
+                Hunt("Six", "Macross City", 1, 1, 1, listOf<String>("5")),
+                Hunt("Septn", "Belobog", 1, 1, 1, listOf<String>("5", "1"))
+            ).toMutableList()
+        }
+    )
+
+    x = listOf(
         Hunt("Un", "Paris", 1, 1, 1, listOf<String>("1")),
         Hunt("Deux", "Londre", 1, 1, 1, listOf<String>("2")),
         Hunt("Trois", "Budapest", 1, 1, 1, listOf<String>("2")),
         Hunt("Quatre", "Fontaine", 1, 1, 1, listOf<String>("4")),
         Hunt("Cinq", "Numazu", 1, 1, 1, listOf<String>("5")),
         Hunt("Six", "Macross City", 1, 1, 1, listOf<String>("5")),
-        Hunt("Septn", "Belobog", 1, 1, 1, listOf<String>("5", "1")),
-    )
+        Hunt("Septn", "Belobog", 1, 1, 1, listOf<String>("5", "1"))
+    ).toMutableList()
+
+    return x
+
 }
 
 

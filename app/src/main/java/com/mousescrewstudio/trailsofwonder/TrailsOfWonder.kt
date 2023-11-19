@@ -47,6 +47,7 @@ import com.mousescrewstudio.trailsofwonder.Destinations.SETTINGS_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.SIGNUP_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.VERIFY_EMAIL_CODE_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.WELCOME_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.CHAT_PAGE
 import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
@@ -61,6 +62,7 @@ import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
 import com.mousescrewstudio.trailsofwonder.ui.SettingsPage
 import com.mousescrewstudio.trailsofwonder.ui.SignupPage
 import com.mousescrewstudio.trailsofwonder.ui.VerifyEmailCodePage
+import com.mousescrewstudio.trailsofwonder.ui.ChatPage
 
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
@@ -77,6 +79,7 @@ object Destinations {
     const val INDICES_RECAP_ROUTE = "indices-recap"
     const val NEW_INDICE_POSITION_ROUTE = "new-indice-position"
     const val NEW_INDICE_CONFIG_ROUTE = "new-indice-config"
+    const val CHAT_PAGE = "chat-page"
 }
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
@@ -115,6 +118,7 @@ fun TrailsOfWonderApp(
         "$NEW_INDICE_POSITION_ROUTE/{huntId}" -> { bottomBarState.value = false }
         "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{latitude}/{longitude}" -> { bottomBarState.value = false }
         "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{indiceId}" -> {bottomBarState.value = false}
+        CHAT_PAGE -> { bottomBarState.value = true }
     }
 
     // Barre de navigation du bas
@@ -215,11 +219,9 @@ fun TrailsOfWonderApp(
 
             }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage (
-                navController = navController
+                navController = navController,
+                chatPage = {navController.navigate(CHAT_PAGE) }
             ) }
-            /*composable(HUNT_SUMMARY) { HuntSummary(
-
-            ) }*/
             composable(
                 "HuntSummary/{huntID}",
                 arguments = listOf(
@@ -332,6 +334,15 @@ fun TrailsOfWonderApp(
                         onBackClick = { navController.navigate("$INDICES_RECAP_ROUTE/$huntId")}
                     )
                 }
+            }
+
+            composable(
+                "ChatPage/{receiverId}",
+                arguments = listOf(
+                    navArgument("receiverId") {type = NavType.StringType })
+            ) { backStackEntry ->
+                val receiverId = backStackEntry.arguments?.getString("receiverId")
+                if(receiverId != null) ChatPage(receiverId)
             }
         }
     }

@@ -21,7 +21,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
+
 
 
 @Composable
@@ -29,10 +31,47 @@ fun HuntSummary(
     huntID: String
 ) {
 
-    val chasseTest : Hunt
-    chasseTest = Hunt(huntID, "Paris", 1, 1, 1, listOf<String>("1"), listOf<String>("o", "a"))
+    var chasseTest = Hunt(huntID, huntID, 1, 1, 1, listOf<String>("1"), listOf<String>("Commentaire1", "Commentaire2"))
 
-    val hunt = chasseTest
+    var i = 0
+
+    GetChasse (
+        huntID = huntID,
+        onSuccess = { hunts ->
+            println(hunts)
+            chasseTest = hunts
+            i = 1
+        }
+    )
+
+
+    if( i == 1 ) Afficher(hunt = chasseTest)
+
+}
+
+@Composable
+fun GetChasse(huntID : String, onSuccess: (Hunt) -> Unit) {
+    val firestore = FirebaseFirestore.getInstance()
+    val huntCollection = firestore.collection("huntsList")
+
+    huntCollection.get()
+        .addOnSuccessListener {
+            it.toObjects(Hunt::class.java).forEach {
+                if (it.huntName == huntID) {
+                    println("Bon nom")
+                    onSuccess(it)
+                } else {
+                    println("Bad nom")
+                }
+            }
+        }
+        .addOnFailureListener { exception ->
+            println("Erreur Chasse")
+        }
+}
+
+@Composable
+fun Afficher(hunt: Hunt) {
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -69,7 +108,7 @@ fun HuntSummary(
                 .fillMaxWidth()
                 .height(80.dp)
         ) {
-            Text("Rejoindre")
+            Text("Créer une équipe")
         }
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -80,26 +119,26 @@ fun HuntSummary(
                 .padding(16.dp)
                 .border(BorderStroke(2.dp, androidx.compose.ui.graphics.Color.Green)))
 
-            {
-                Column(modifier = Modifier
-                    .padding(16.dp)
-                )  {
-                    Text(
-                        text = "Commentaires",
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .wrapContentHeight()
-                    )
+        {
+            Column(modifier = Modifier
+                .padding(16.dp)
+            )  {
+                Text(
+                    text = "Commentaires",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                )
 
+                Spacer(modifier = Modifier.height(16.dp))
+                hunt.comment.forEach {
+                    Text(text = it, textAlign = TextAlign.Center,)
                     Spacer(modifier = Modifier.height(16.dp))
-                    hunt.comment.forEach {
-                        Text(text = it, textAlign = TextAlign.Center,)
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
                 }
             }
+        }
 
     }
 }

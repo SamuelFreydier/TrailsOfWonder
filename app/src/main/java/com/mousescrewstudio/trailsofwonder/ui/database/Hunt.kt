@@ -32,6 +32,15 @@ fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
                 // Chasse ajoutée avec succès
                 // documentReference.id contient l'id du nouveau document
                 val huntId = documentReference.id
+
+                db.collection("huntsList")
+                    .add(hunt).addOnSuccessListener {
+                        println("Ajout : ${it.id}")
+                    }
+                    .addOnFailureListener {
+                        println("Erreur lors de la sauvegarde : $it")
+                    }
+
                 onSuccess(huntId)
                 println("DocumentReference : ${documentReference.id}")
             }
@@ -39,6 +48,8 @@ fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
                 // Gestion d'erreur
                 println("Erreur lors de la sauvegarde : $exception")
             }
+
+
     }
 }
 
@@ -140,32 +151,71 @@ fun deleteHunt(huntId: String, onSuccess: () -> Unit, onFailure: (Exception) -> 
 }
 
 
-fun getAllUser() : MutableList<String> {
+fun getAllHunt(onSuccess: (MutableList<Hunt>) -> Unit, onFailure: () -> Unit) /*: MutableList<Hunt> */{
     val firestore = FirebaseFirestore.getInstance()
-    val fireCollection = firestore.collection("username")
-    val fireDocument = fireCollection.document("UsernameList")
+    //val fireCollection = firestore.collection("usename")
+    //val fireDocument = fireCollection.document("UsernameList")
 
-    val list = mutableListOf<String>()
+    //val list = mutableListOf<String>()
+    val huntList = mutableListOf<Hunt>()
 
-    fireDocument
+   /* fireDocument
         .get()
         .addOnSuccessListener { document ->
             if (document != null) {
                 val data = document.data
                 if (data != null) {
                     for (value in data) {
-                        val x = value.toString()
-                        list.add(x)
+                        val user = FirebaseAuth.getInstance().currentUser
+                        if (user != null) {
+                            var userID = user.uid
+                            //userID = value.toString()
+                            list.add(userID)
+
+                            firestore.collection("hunts")
+                                .document(userID)
+                                .collection("userHunts")
+                                .get()
+                                .addOnSuccessListener {
+                                    it.toObjects(Hunt::class.java).forEach {
+                                        huntList.add(it)
+                                        println("Chasse : $it")
+                                    }
+                                }
+                                .addOnFailureListener {
+                                    println("Erreur get les chasses de l'user $userID")
+                                }
+                        }
+                        else println("no user")
+
                     }
                 }
             }
 
-            //println("ListUID $list")
-            //println("List size: ${list.size}")
-        }
+            println("ListUID $list")
+            println("ListHunt $huntList")
+
+        }*/
 
     //println("ListUID $list")
     //println("List size: ${list.size}")
 
-    return list
+
+    val huntCollection = firestore.collection("huntsList")
+    huntCollection.get()
+        .addOnSuccessListener {
+            //for (document in it) {
+            it.toObjects(Hunt::class.java).forEach {
+                huntList.add(it)
+            }
+            println("$huntList et $it")
+            onSuccess(huntList)
+            //}
+        }
+        .addOnFailureListener { exception ->
+            println("Erreur Chasse")
+            onFailure()
+        }
+
+    //return huntList
 }
