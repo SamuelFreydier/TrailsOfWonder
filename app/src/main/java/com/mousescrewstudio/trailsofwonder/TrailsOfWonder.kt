@@ -35,6 +35,7 @@ import com.mousescrewstudio.trailsofwonder.Destinations.FORGOT_PASSWORD_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.INDICES_RECAP_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_SUMMARY
 import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.NEW_PASSWORD_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.PROFILE_ROUTE
@@ -46,6 +47,7 @@ import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
 import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
+import com.mousescrewstudio.trailsofwonder.ui.HuntSummary
 import com.mousescrewstudio.trailsofwonder.ui.IndicesRecapPage
 import com.mousescrewstudio.trailsofwonder.ui.LoginPage
 import com.mousescrewstudio.trailsofwonder.ui.NewPasswordPage
@@ -63,6 +65,7 @@ object Destinations {
     const val NEW_PASSWORD_PAGE = "newpassword"
     const val HUNT_CREATION_ROUTE = "hunt-creation"
     const val HUNT_JOIN_ROUTE = "hunt-join"
+    const val HUNT_SUMMARY = "hunt-summary"
     const val PROFILE_ROUTE = "profile"
     const val SETTINGS_ROUTE = "settings"
     const val INDICES_RECAP_ROUTE = "indices-recap"
@@ -97,6 +100,7 @@ fun TrailsOfWonderApp(
         PROFILE_ROUTE -> { bottomBarState.value = true }
         HUNT_CREATION_ROUTE -> { bottomBarState.value = true }
         HUNT_JOIN_ROUTE -> { bottomBarState.value = true }
+        HUNT_SUMMARY -> { bottomBarState.value = true }
         SETTINGS_ROUTE -> { bottomBarState.value = false }
         INDICES_RECAP_ROUTE -> { bottomBarState.value = false }
     }
@@ -172,7 +176,10 @@ fun TrailsOfWonderApp(
                 onSaveClick = { navController.navigate(HUNT_CREATION_ROUTE) },
                 onIndicesClick = { navController.navigate(INDICES_RECAP_ROUTE) }
             ) }
-            composable(HUNT_JOIN_ROUTE) { HuntJoinPage() }
+            composable(HUNT_JOIN_ROUTE) { HuntJoinPage (
+                onClickToHuntSummary = { navController.navigate(HUNT_SUMMARY) }
+            ) }
+            composable(HUNT_SUMMARY) { HuntSummary() }
             composable(PROFILE_ROUTE) {
                 ProfilePage(
                     username = FirebaseAuth.getInstance().currentUser?.displayName.toString(),
