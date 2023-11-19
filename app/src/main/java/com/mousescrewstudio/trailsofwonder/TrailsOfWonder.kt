@@ -61,8 +61,6 @@ import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
 import com.mousescrewstudio.trailsofwonder.ui.SettingsPage
 import com.mousescrewstudio.trailsofwonder.ui.SignupPage
 import com.mousescrewstudio.trailsofwonder.ui.VerifyEmailCodePage
-import com.mousescrewstudio.trailsofwonder.ui.database.Indice
-import com.mousescrewstudio.trailsofwonder.ui.database.getIndiceFromId
 
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
@@ -109,6 +107,7 @@ fun TrailsOfWonderApp(
         FORGOT_PASSWORD_ROUTE -> { bottomBarState.value = false}
         PROFILE_ROUTE -> { bottomBarState.value = true }
         HUNT_CREATION_ROUTE -> { bottomBarState.value = true }
+        "$HUNT_CREATION_ROUTE/{huntId}" -> {bottomBarState.value = false}
         HUNT_JOIN_ROUTE -> { bottomBarState.value = true }
         HUNT_SUMMARY -> { bottomBarState.value = true }
         SETTINGS_ROUTE -> { bottomBarState.value = false }
@@ -184,12 +183,37 @@ fun TrailsOfWonderApp(
                 onResetPassword = {navController.navigate(LOGIN_ROUTE) }
             ) }
             composable(HUNT_CREATION_ROUTE) { HuntCreationPage(
+                editMode = false,
                 onDeleteClick = {},
                 onPublishClick = {},
-                onSaveClick = { navController.navigate(HUNT_CREATION_ROUTE) },
+                onSaveClick = { navController.navigate(PROFILE_ROUTE) },
                 onIndicesClick = { huntId ->
-                    navController.navigate("$INDICES_RECAP_ROUTE/$huntId") }
+                    navController.navigate("$INDICES_RECAP_ROUTE/$huntId") },
+                onBackClick = { navController.navigate(PROFILE_ROUTE)}
             ) }
+            composable(
+                route = "$HUNT_CREATION_ROUTE/{huntId}",
+                arguments = listOf(
+                    navArgument("huntId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val arguments = backStackEntry?.arguments
+                val huntId = arguments?.getString("huntId")
+
+                if (huntId != null) {
+                    HuntCreationPage(
+                        huntId = huntId,
+                        editMode = true,
+                        onDeleteClick = {},
+                        onPublishClick = {},
+                        onSaveClick = { navController.navigate(PROFILE_ROUTE) },
+                        onIndicesClick = { huntId ->
+                            navController.navigate("$INDICES_RECAP_ROUTE/$huntId") },
+                        onBackClick = {navController.navigate(PROFILE_ROUTE)}
+                    )
+                }
+
+            }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage (
                 navController = navController
             ) }
@@ -208,7 +232,9 @@ fun TrailsOfWonderApp(
                 ProfilePage(
                     username = FirebaseAuth.getInstance().currentUser?.displayName.toString(),
                     onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
-                    onEditTreasureHuntClick = {}
+                    onEditHuntClick = { huntId ->
+                        navController.navigate("$HUNT_CREATION_ROUTE/$huntId")
+                    }
                 )
             }
             composable(SETTINGS_ROUTE) {
@@ -235,7 +261,7 @@ fun TrailsOfWonderApp(
                 if (huntId != null) {
                     IndicesRecapPage(
                         huntId = huntId,
-                        onBackClick = { navController.navigate(HUNT_CREATION_ROUTE) },
+                        onBackClick = { navController.navigate("$HUNT_CREATION_ROUTE/$huntId") },
                         onAddIndexClick = { navController.navigate("$NEW_INDICE_POSITION_ROUTE/$huntId") },
                         onEditIndiceClick = { indiceId ->
                             navController.navigate("$NEW_INDICE_CONFIG_ROUTE/$huntId/$indiceId")

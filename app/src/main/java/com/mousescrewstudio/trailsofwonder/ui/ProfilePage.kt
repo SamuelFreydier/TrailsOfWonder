@@ -18,12 +18,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getUserHunts
 
@@ -37,20 +39,22 @@ val dummyTreasureHunts = List(3) {
 fun ProfilePage(
     username: String,
     onSettingsClick: () -> Unit,
-    onEditTreasureHuntClick: (String) -> Unit
+    onEditHuntClick: (String) -> Unit
 ) {
     var userHunts by remember { mutableStateOf(emptyList<Hunt>()) }
 
-    getUserHunts(
-        onSuccess = { hunts ->
-            userHunts = hunts
-            println("Chasses récupérées avec succès")
-        },
-        onFailure = { exception ->
-            // Erreur à gérer
-            println("Erreur lors de la récupération des chasses : $exception")
-        }
-    )
+    LaunchedEffect(FirebaseAuth.getInstance().currentUser?.uid) {
+        getUserHunts(
+            onSuccess = { hunts ->
+                userHunts = hunts
+                println("Chasses récupérées avec succès")
+            },
+            onFailure = { exception ->
+                // Erreur à gérer
+                println("Erreur lors de la récupération des chasses : $exception")
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
@@ -91,7 +95,7 @@ fun ProfilePage(
             items(userHunts) { userHunt ->
                 ProfileHuntItem(
                     hunt = userHunt,
-                    onEditClick = { onEditTreasureHuntClick(it) }
+                    onEditClick = { onEditHuntClick(it) }
                 )
             }
         }
@@ -113,7 +117,7 @@ fun ProfileHuntItem(hunt: Hunt, onEditClick: (String) -> Unit) {
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = { onEditClick(hunt.huntName) },
+            onClick = { onEditClick(hunt.id) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(40.dp)

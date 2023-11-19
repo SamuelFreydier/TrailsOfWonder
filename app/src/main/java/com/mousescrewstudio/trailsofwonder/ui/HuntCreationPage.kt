@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
@@ -27,9 +28,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -38,40 +42,117 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
+import com.mousescrewstudio.trailsofwonder.ui.database.getHuntFromId
 import com.mousescrewstudio.trailsofwonder.ui.database.saveHunt
+import com.mousescrewstudio.trailsofwonder.ui.database.updateHunt
 import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HuntCreationPage(
+    huntId: String? = null,
+    editMode: Boolean,
     onSaveClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
     onPublishClick: () -> Unit,
-    onIndicesClick: (String) -> Unit
+    onIndicesClick: (String) -> Unit,
+    onBackClick: () -> Unit
 ) {
-    var huntName by remember { mutableStateOf(TextFieldValue()) }
-    var location by remember { mutableStateOf(TextFieldValue()) }
+
+
+    if(!editMode) {
+        MainHuntCreationContent(
+            huntId = huntId,
+            editMode = editMode,
+            onSaveClick = onSaveClick,
+            onDeleteClick = onDeleteClick,
+            onPublishClick = onPublishClick,
+            onIndicesClick = onIndicesClick,
+            modifier = Modifier
+        )
+    } else {
+        Scaffold (
+            topBar = {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        }
+                    },
+                    title = { Text(text = "Édition de chasse au trésor") },
+                )
+            }
+        ) { innerPadding ->
+            MainHuntCreationContent(
+                huntId = huntId,
+                editMode = editMode,
+                onSaveClick = onSaveClick,
+                onDeleteClick = onDeleteClick,
+                onPublishClick = onPublishClick,
+                onIndicesClick = onIndicesClick,
+                modifier = Modifier.padding(innerPadding)
+            )
+        }
+    }
+
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MainHuntCreationContent(
+    huntId: String? = null,
+    editMode: Boolean,
+    onSaveClick: (String) -> Unit,
+    onDeleteClick: () -> Unit,
+    onPublishClick: () -> Unit,
+    onIndicesClick: (String) -> Unit,
+    modifier: Modifier
+) {
+    var hunt by remember { mutableStateOf(Hunt()) }
+
+    var huntName by remember { mutableStateOf(hunt.huntName ?: "") }
+    var location by remember { mutableStateOf(hunt.location ?: "") }
     val difficultyItems = listOf("Facile", "Moyen", "Difficile")
     var difficultyExpanded by remember { mutableStateOf(false) }
-    var difficultyIndex by remember { mutableIntStateOf(0) }
-    var durationHours by remember { mutableIntStateOf(0) }
-    var durationMinutes by remember { mutableIntStateOf(0) }
+    var difficultyIndex by remember { mutableIntStateOf(hunt.difficulty ?: 0) }
+    var durationHours by remember { mutableIntStateOf(hunt.durationHours ?: 0) }
+    var durationMinutes by remember { mutableIntStateOf(hunt.durationMinutes ?: 0) }
 
     var tagText by remember { mutableStateOf(TextFieldValue()) }
     var tagsWithIds by remember { mutableStateOf(listOf<TagItemData>()) }
 
-    var showIndicesPage by remember { mutableStateOf(false) }
+    if (editMode) {
+        LaunchedEffect(huntId) {
+            // Chargez l'indice à partir de Firestore
+            huntId?.let {
+                getHuntFromId(it, { loadedHunt ->
+                    hunt = loadedHunt
+                    huntName = hunt.huntName
+                    location = hunt.location
+                    difficultyIndex = hunt.difficulty
+                    durationHours = hunt.durationHours
+                    durationMinutes = hunt.durationMinutes
+                    hunt.tags.forEachIndexed { _, s ->
+                        tagsWithIds = tagsWithIds + TagItemData(UUID.randomUUID().toString(), s)
+                    }
+
+                    println("Chasse chargée avec succès")
+                }, {exception ->
+                    println("Chasse non chargée : $exception")
+                })
+            }
+        }
+    }
 
     fun CreateHunt(onSuccess: (String) -> Unit) {
         // Récupération des données de la chasse dans une seule structure
         val huntData = Hunt(
-            huntName = huntName.text,
-            location = location.text,
+            huntName = huntName,
+            location = location,
             difficulty = difficultyIndex,
             durationHours = durationHours,
             durationMinutes = durationMinutes,
@@ -82,28 +163,48 @@ fun HuntCreationPage(
         saveHunt(huntData, onSuccess)
     }
 
+    fun UpdateHunt(onSuccess: (String) -> Unit) {
+        // Récupération des données de la chasse dans une seule structure
+        val huntData = Hunt(
+            huntName = huntName,
+            location = location,
+            difficulty = difficultyIndex,
+            durationHours = durationHours,
+            durationMinutes = durationMinutes,
+            tags = tagsWithIds.map { it.tag }
+        )
+
+        // Sauvegarde de la chasse dans Firestore
+        if (huntId != null) {
+            updateHunt(huntId, huntData, onSuccess)
+        }
+    }
+
     LazyColumn(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
         item {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Création de chasse au trésor",
-                    style = MaterialTheme.typography.headlineMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
+            if(!editMode) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "Création de chasse au trésor",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
 
             TextField(
                 value = huntName,
@@ -124,7 +225,7 @@ fun HuntCreationPage(
             )
 
             Text(text = "Difficulté")
-            
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -201,7 +302,11 @@ fun HuntCreationPage(
             // Indices button
             Button(
                 onClick = {
-                    CreateHunt(onIndicesClick)
+                    if(!editMode) {
+                        CreateHunt(onIndicesClick)
+                    } else {
+                        UpdateHunt(onIndicesClick)
+                    }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -219,7 +324,11 @@ fun HuntCreationPage(
             ) {
                 Button(
                     onClick = {
-                        CreateHunt(onSaveClick)
+                        if(!editMode) {
+                            CreateHunt(onSaveClick)
+                        } else {
+                            UpdateHunt(onSaveClick)
+                        }
                     },
                     modifier = Modifier
                         .weight(1f)

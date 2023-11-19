@@ -12,7 +12,8 @@ data class Hunt (
     var durationHours: Int = 0,
     var durationMinutes: Int = 0,
     var tags: List<String> = emptyList(),
-    var comment: List<String> = emptyList()
+    var comment: List<String> = emptyList(),
+    var id: String = ""
 ) {
     //constructor(): this("", "", 0, 0, 0, emptyList())
 }
@@ -41,6 +42,28 @@ fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
     }
 }
 
+fun updateHunt(huntId: String, hunt: Hunt, onSuccess: (String) -> Unit) {
+    val user = FirebaseAuth.getInstance().currentUser
+
+    if(user != null) {
+        val userId = user.uid
+
+        db.collection("hunts")
+            .document(userId)
+            .collection("userHunts")
+            .document(huntId)
+            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes)
+            .addOnSuccessListener {
+                // Chasse mise à jour avec succès
+                onSuccess(huntId)
+            }
+            .addOnFailureListener { exception ->
+                // Gestion d'erreur
+                println("Erreur lors de la mise à jour : $exception")
+            }
+    }
+}
+
 fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
@@ -54,7 +77,40 @@ fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit
             .get()
             .addOnSuccessListener { result ->
                 val hunts = result.toObjects(Hunt::class.java)
-                onSuccess(hunts)
+                val updatedHunts = hunts.map {
+                    it.copy(id = result.documents[hunts.indexOf(it)].id)
+                }
+                onSuccess(updatedHunts)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+}
+
+// Récupère une chasse à partir de son ID
+fun getHuntFromId(huntId: String, onSuccess: (Hunt) -> Unit, onFailure: (Exception) -> Unit) {
+    val user = FirebaseAuth.getInstance().currentUser
+    println("getHuntFromId")
+    if (user != null) {
+        val userId = user.uid
+        println("userNotNull getHuntFromId")
+        println(huntId)
+
+        // Récupère toutes les chasses de l'utilisateur
+        db.collection("hunts")
+            .document(userId)
+            .collection("userHunts")
+            .document(huntId)
+            .get()
+            .addOnSuccessListener { result ->
+                println("success")
+                val hunt = result.toObject(Hunt::class.java)
+                val updatedHunt = hunt?.copy(id = result.id)
+                if (updatedHunt != null) {
+                    println("updatedhunt not null")
+                    onSuccess(updatedHunt)
+                }
             }
             .addOnFailureListener { exception ->
                 onFailure(exception)
