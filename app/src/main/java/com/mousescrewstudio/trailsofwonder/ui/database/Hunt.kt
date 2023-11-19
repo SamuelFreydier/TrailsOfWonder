@@ -11,7 +11,8 @@ data class Hunt (
     var difficulty: Int = 0,
     var durationHours: Int = 0,
     var durationMinutes: Int = 0,
-    var tags: List<String> = emptyList()
+    var tags: List<String> = emptyList(),
+    var comment: List<String> = emptyList()
 ) {
     //constructor(): this("", "", 0, 0, 0, emptyList())
 }
@@ -59,4 +60,35 @@ fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit
                 onFailure(exception)
             }
     }
+}
+
+
+fun getAllUser() : MutableList<String> {
+    val firestore = FirebaseFirestore.getInstance()
+    val fireCollection = firestore.collection("username")
+    val fireDocument = fireCollection.document("UsernameList")
+
+    val list = mutableListOf<String>()
+
+    fireDocument
+        .get()
+        .addOnSuccessListener { document ->
+            if (document != null) {
+                val data = document.data
+                if (data != null) {
+                    for (value in data) {
+                        val x = value.toString()
+                        list.add(x)
+                    }
+                }
+            }
+
+            //println("ListUID $list")
+            //println("List size: ${list.size}")
+        }
+
+    //println("ListUID $list")
+    //println("List size: ${list.size}")
+
+    return list
 }

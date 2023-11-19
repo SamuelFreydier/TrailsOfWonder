@@ -1,70 +1,112 @@
 package com.mousescrewstudio.trailsofwonder.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import com.google.firebase.firestore.FirebaseFirestore
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 
-//data class Hunt(val id: String, val huntName: String, val location: String)
-//chasse = Hunt("null", "null", -1, -1, -1, listOf<String>("-1"))
-//summaryComposable()
 
 @Composable
-fun HuntSummary() {
-    val resultat = 10
+fun HuntSummary(
+    huntID: String
+) {
 
-    val firestore = FirebaseFirestore.getInstance()
+    val chasseTest : Hunt
+    chasseTest = Hunt(huntID, "Paris", 1, 1, 1, listOf<String>("1"), listOf<String>("o", "a"))
 
-    firestore.collection("usename").document("DocumentForAll")
-        .get()
-        .addOnSuccessListener { document ->
-            if (document != null) {
-                val value = document.getString("user01")
-                println("Valeur lue depuis Firestore : $value")
-            } else {
-                println("Aucun document trouvé")
-            }
+    val hunt = chasseTest
+
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .padding(16.dp)
+    ) {
+        Text(
+            text = "Veuillez vous préparer pour la chasse ${hunt.huntName}",
+            textAlign = TextAlign.Center,
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = hunt.location,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = ("${hunt.durationHours}:${hunt.durationMinutes}"),
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
-        .addOnFailureListener { exception ->
-            // Gérer les erreurs ici
-            println("Erreur lors de la lecture des données : $exception")
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {},
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(80.dp)
+        ) {
+            Text("Rejoindre")
         }
+        Spacer(modifier = Modifier.height(16.dp))
 
+        Box(
+            contentAlignment = Alignment.TopCenter,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .border(BorderStroke(2.dp, androidx.compose.ui.graphics.Color.Green)))
 
+            {
+                Column(modifier = Modifier
+                    .padding(16.dp)
+                )  {
+                    Text(
+                        text = "Commentaires",
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .wrapContentHeight()
+                    )
 
-    /*val user = FirebaseAuth.getInstance().currentUser
-
-    if (user != null) {
-        val userId = user.uid
-
-        resultat = "ici"
-
-        // Récupère toutes les chasses de l'utilisateur
-        com.mousescrewstudio.trailsofwonder.ui.database.db.collection("hunts")
-            .document(userId)
-            .collection("userHunts")
-            .get()
-            .addOnSuccessListener { result ->
-                resultat = "caca"
+                    Spacer(modifier = Modifier.height(16.dp))
+                    hunt.comment.forEach {
+                        Text(text = it, textAlign = TextAlign.Center,)
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
             }
-            .addOnFailureListener { exception ->
-                resultat = "pedro"
-            }
-    }*/
 
-
-
-
-
-    Text(text = resultat.toString())
-}
-/*
-fun NavGraphBuilder.summaryComposable() {
-    composable(
-        route = "summary/{x}",
-        arguments = listOf(navArgument("x") { type = NavType.IntType })
-    ) { backStackEntry ->
-        val x = backStackEntry.arguments?.getInt("x") ?: 0
-        HuntSummary(navController = rememberNavController())
     }
 }
-*/
+
+
+@Preview
+@Composable
+fun PreviewSummary() {
+    HuntSummary("Coucou")
+}
