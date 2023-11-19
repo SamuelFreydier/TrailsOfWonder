@@ -26,10 +26,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.Destinations.FORGOT_PASSWORD_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
@@ -37,6 +40,7 @@ import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.INDICES_RECAP_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_SUMMARY
 import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.NEW_INDICE_CONFIG_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.NEW_INDICE_POSITION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.NEW_PASSWORD_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.PROFILE_ROUTE
@@ -51,6 +55,7 @@ import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
 import com.mousescrewstudio.trailsofwonder.ui.HuntSummary
 import com.mousescrewstudio.trailsofwonder.ui.IndicesRecapPage
 import com.mousescrewstudio.trailsofwonder.ui.LoginPage
+import com.mousescrewstudio.trailsofwonder.ui.NewIndiceConfigPage
 import com.mousescrewstudio.trailsofwonder.ui.NewIndicePositionPage
 import com.mousescrewstudio.trailsofwonder.ui.NewPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
@@ -72,6 +77,7 @@ object Destinations {
     const val SETTINGS_ROUTE = "settings"
     const val INDICES_RECAP_ROUTE = "indices-recap"
     const val NEW_INDICE_POSITION_ROUTE = "new-indice-position"
+    const val NEW_INDICE_CONFIG_ROUTE = "new-indice-config"
 }
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
@@ -107,6 +113,7 @@ fun TrailsOfWonderApp(
         SETTINGS_ROUTE -> { bottomBarState.value = false }
         INDICES_RECAP_ROUTE -> { bottomBarState.value = false }
         NEW_INDICE_POSITION_ROUTE -> { bottomBarState.value = false }
+        NEW_INDICE_CONFIG_ROUTE -> { bottomBarState.value = false }
     }
 
     // Barre de navigation du bas
@@ -178,7 +185,8 @@ fun TrailsOfWonderApp(
                 onDeleteClick = {},
                 onPublishClick = {},
                 onSaveClick = { navController.navigate(HUNT_CREATION_ROUTE) },
-                onIndicesClick = { navController.navigate(INDICES_RECAP_ROUTE) }
+                onIndicesClick = { huntId ->
+                    navController.navigate("$INDICES_RECAP_ROUTE/$huntId") }
             ) }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage (
                 onClickToHuntSummary = { navController.navigate(HUNT_SUMMARY) }
@@ -204,17 +212,64 @@ fun TrailsOfWonderApp(
                     onBackClick = { navController.navigate(PROFILE_ROUTE) }
                 )
             }
-            composable(INDICES_RECAP_ROUTE) {
-                IndicesRecapPage(
-                    onBackClick = { navController.navigate(HUNT_CREATION_ROUTE) },
-                    onAddIndexClick = { navController.navigate(NEW_INDICE_POSITION_ROUTE) }
+            composable(
+                route = "$INDICES_RECAP_ROUTE/{huntId}",
+                arguments = listOf(
+                    navArgument("huntId") { type = NavType.StringType }
                 )
+            ) { backStackEntry ->
+                val arguments = backStackEntry?.arguments
+                val huntId = arguments?.getString("huntId")
+                if (huntId != null) {
+                    IndicesRecapPage(
+                        huntId = huntId,
+                        onBackClick = { navController.navigate(HUNT_CREATION_ROUTE) },
+                        onAddIndexClick = { navController.navigate("$NEW_INDICE_POSITION_ROUTE/$huntId") }
+                    )
+                }
             }
-            composable(NEW_INDICE_POSITION_ROUTE) {
-                NewIndicePositionPage(
-                    onPositionValidated = {},
-                    onBackClick = {navController.navigate(INDICES_RECAP_ROUTE)}
+            composable(
+                route = "$NEW_INDICE_POSITION_ROUTE/{huntId}",
+                arguments = listOf(
+                    navArgument("huntId") { type = NavType.StringType }
                 )
+            ) { backStackEntry ->
+                val arguments = backStackEntry?.arguments
+                val huntId = arguments?.getString("huntId")
+                if (huntId != null) {
+                    NewIndicePositionPage(
+                        huntId = huntId,
+                        onPositionValidated = { latitude, longitude ->
+                            navController.navigate("$NEW_INDICE_CONFIG_ROUTE/$huntId/$latitude/$longitude")
+                        },
+                        onBackClick = {navController.navigate("$INDICES_RECAP_ROUTE/$huntId")}
+                    )
+                }
+            }
+            composable(
+                route = "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{latitude}/{longitude}",
+                arguments = listOf(
+                    navArgument("huntId") { type = NavType.StringType },
+                    navArgument("latitude") { type = NavType.FloatType },
+                    navArgument("longitude") { type = NavType.FloatType}
+                )
+            ) { backStackEntry ->
+                val arguments = backStackEntry?.arguments
+                val huntId = arguments?.getString("huntId")
+                val latitude = arguments?.getFloat("latitude")
+                val longitude = arguments?.getFloat("longitude")
+
+                if (huntId != null && latitude != null && longitude != null) {
+                    NewIndiceConfigPage(
+                        huntId = huntId,
+                        latitude = latitude,
+                        longitude = longitude,
+                        onIndiceConfigured = { indice ->
+                            navController.navigate("$INDICES_RECAP_ROUTE/$huntId")
+                        },
+                        onBackClick = { navController.navigate("$NEW_INDICE_POSITION_ROUTE/$huntId")}
+                    )
+                }
             }
         }
     }

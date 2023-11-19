@@ -63,6 +63,7 @@ data class IndexItem(val title: String) : Parcelable
 
 @Composable
 fun IndicesRecapPage(
+    huntId: String,
     onBackClick: () -> Unit,
     onAddIndexClick: () -> Unit
 ) {

@@ -49,10 +49,10 @@ import java.util.UUID
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HuntCreationPage(
-    onSaveClick: () -> Unit,
+    onSaveClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
     onPublishClick: () -> Unit,
-    onIndicesClick: () -> Unit
+    onIndicesClick: (String) -> Unit
 ) {
     var huntName by remember { mutableStateOf(TextFieldValue()) }
     var location by remember { mutableStateOf(TextFieldValue()) }
@@ -66,6 +66,21 @@ fun HuntCreationPage(
     var tagsWithIds by remember { mutableStateOf(listOf<TagItemData>()) }
 
     var showIndicesPage by remember { mutableStateOf(false) }
+
+    fun CreateHunt(onSuccess: (String) -> Unit) {
+        // Récupération des données de la chasse dans une seule structure
+        val huntData = Hunt(
+            huntName = huntName.text,
+            location = location.text,
+            difficulty = difficultyIndex,
+            durationHours = durationHours,
+            durationMinutes = durationMinutes,
+            tags = tagsWithIds.map { it.tag }
+        )
+
+        // Sauvegarde de la chasse dans Firestore
+        saveHunt(huntData, onSuccess)
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -185,7 +200,9 @@ fun HuntCreationPage(
 
             // Indices button
             Button(
-                onClick = onIndicesClick,
+                onClick = {
+                    CreateHunt(onIndicesClick)
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp)
@@ -202,20 +219,7 @@ fun HuntCreationPage(
             ) {
                 Button(
                     onClick = {
-                        // Récupération des données de la chasse dans une seule structure
-                        val huntData = Hunt(
-                            huntName = huntName.text,
-                            location = location.text,
-                            difficulty = difficultyIndex,
-                            durationHours = durationHours,
-                            durationMinutes = durationMinutes,
-                            tags = tagsWithIds.map { it.tag }
-                        )
-
-                        // Sauvegarde de la chasse dans Firestore
-                        saveHunt(huntData)
-
-                        onSaveClick()
+                        CreateHunt(onSaveClick)
                     },
                     modifier = Modifier
                         .weight(1f)

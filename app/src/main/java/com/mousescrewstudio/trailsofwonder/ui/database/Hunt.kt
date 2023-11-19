@@ -16,7 +16,7 @@ data class Hunt (
     //constructor(): this("", "", 0, 0, 0, emptyList())
 }
 
-fun saveHunt(hunt: Hunt) {
+fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
     if(user != null) {
@@ -29,6 +29,8 @@ fun saveHunt(hunt: Hunt) {
             .addOnSuccessListener { documentReference ->
                 // Chasse ajoutée avec succès
                 // documentReference.id contient l'id du nouveau document
+                val huntId = documentReference.id
+                onSuccess(huntId)
                 println("DocumentReference : ${documentReference.id}")
             }
             .addOnFailureListener { exception ->
@@ -63,14 +65,3 @@ fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit
             }
     }
 }
-/*
-fun parseHuntDocument(document: DocumentSnapshot): Hunt? {
-    return try {
-        val json = Json { ignoreUnknownKeys = true }
-        val hunt = json.decodeFromString(Hunt.serializer(), document.data?.toJson())
-        hunt
-    } catch (e: Exception) {
-        // Gérez l'erreur de désérialisation ici
-        null
-    }
-}*/

@@ -52,7 +52,8 @@ import com.mousescrewstudio.trailsofwonder.ui.database.LocationDetails
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun NewIndicePositionPage(
-    onPositionValidated: (LatLng) -> Unit,
+    huntId: String,
+    onPositionValidated: (Float, Float) -> Unit,
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current as MainActivity
@@ -140,7 +141,7 @@ fun NewIndicePositionPage(
             Button(
                 onClick = {
                     // Use the current user location for validation
-                    onPositionValidated(userLocation)
+                    onPositionValidated(userLocation.latitude.toFloat(), userLocation.longitude.toFloat())
                 },
                 modifier = Modifier
                     .fillMaxWidth()
