@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,20 +26,49 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.model.LatLng
 import com.mousescrewstudio.trailsofwonder.ui.database.Indice
+import com.mousescrewstudio.trailsofwonder.ui.database.getIndiceFromId
 import com.mousescrewstudio.trailsofwonder.ui.database.saveIndice
+import com.mousescrewstudio.trailsofwonder.ui.database.updateIndice
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewIndiceConfigPage(
     huntId: String,
-    latitude: Float,
-    longitude: Float,
-    onIndiceConfigured: (Indice) -> Unit,
+    editMode: Boolean,
+    indiceId: String? = null,
+    latitude: Float? = 0f,
+    longitude: Float? = 0f,
+    onIndiceConfigured: () -> Unit,
     onBackClick: () -> Unit
 ) {
-    var indiceName by remember { mutableStateOf("") }
-    var indiceDescription by remember { mutableStateOf("") }
-    var indicePassword by remember { mutableStateOf("") }
+    var indice by remember { mutableStateOf(Indice()) }
+    var indiceName by remember { mutableStateOf(indice.name ?: "") }
+    var indiceDescription by remember { mutableStateOf(indice.description ?: "") }
+    var indicePassword by remember { mutableStateOf(indice.password ?: "") }
+    var indiceLatitude by remember { mutableStateOf(if(!editMode) latitude else indice.latitude) }
+    var indiceLongitude by remember { mutableStateOf(if(!editMode) longitude else indice.longitude) }
+
+
+    if (editMode) {
+        LaunchedEffect(indiceId) {
+            // Chargez l'indice à partir de Firestore
+            indiceId?.let {
+                getIndiceFromId(huntId, it, { loadedIndice ->
+                    indice = loadedIndice
+                    indiceName = indice.name
+                    indiceDescription = indice.description
+                    indicePassword = indice.password.toString()
+                    indiceLatitude = indice.latitude
+                    indiceLongitude = indice.longitude
+
+                    println("Indice chargé avec succès")
+                }, {exception ->
+                    println("Indice non chargé : $exception")
+                })
+            }
+        }
+    }
+
 
     Scaffold (
         topBar = {
@@ -86,25 +116,30 @@ fun NewIndiceConfigPage(
             )
 
             Text(
-                text = "Coordonnées : ${latitude}, ${longitude}",
+                text = "Coordonnées : ${indiceLatitude}, ${indiceLongitude}",
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
             // Validate button
             Button(
                 onClick = {
-                    val newIndice =
-                        Indice(
-                            huntId = huntId,
-                            name = indiceName,
-                            description = indiceDescription,
-                            password = if (indicePassword.isNotBlank()) indicePassword else null,
-                            latitude = latitude,
-                            longitude = longitude // Set coordinates accordingly
-                        )
+                    // Création d'indice
+                    if( !editMode && latitude != null && longitude != null) {
+                        val newIndice =
+                            Indice(
+                                huntId = huntId,
+                                name = indiceName,
+                                description = indiceDescription,
+                                password = if (indicePassword.isNotBlank()) indicePassword else null,
+                                latitude = latitude,
+                                longitude = longitude // Set coordinates accordingly
+                            )
 
-                    if (newIndice != null) {
-                        saveIndice(newIndice, onIndiceConfigured)
+                        if (newIndice != null) {
+                            saveIndice(newIndice, onIndiceConfigured)
+                        }
+                    } else if ( editMode ) { // Edition d'un indice existant
+                        updateIndice(indice, indiceName, indiceDescription, indicePassword, onIndiceConfigured)
                     }
                 },
                 modifier = Modifier

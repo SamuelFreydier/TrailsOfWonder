@@ -61,6 +61,8 @@ import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
 import com.mousescrewstudio.trailsofwonder.ui.SettingsPage
 import com.mousescrewstudio.trailsofwonder.ui.SignupPage
 import com.mousescrewstudio.trailsofwonder.ui.VerifyEmailCodePage
+import com.mousescrewstudio.trailsofwonder.ui.database.Indice
+import com.mousescrewstudio.trailsofwonder.ui.database.getIndiceFromId
 
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
@@ -113,6 +115,7 @@ fun TrailsOfWonderApp(
         "$INDICES_RECAP_ROUTE/{huntId}" -> { bottomBarState.value = false }
         "$NEW_INDICE_POSITION_ROUTE/{huntId}" -> { bottomBarState.value = false }
         "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{latitude}/{longitude}" -> { bottomBarState.value = false }
+        "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{indiceId}" -> {bottomBarState.value = false}
     }
 
     // Barre de navigation du bas
@@ -233,7 +236,10 @@ fun TrailsOfWonderApp(
                     IndicesRecapPage(
                         huntId = huntId,
                         onBackClick = { navController.navigate(HUNT_CREATION_ROUTE) },
-                        onAddIndexClick = { navController.navigate("$NEW_INDICE_POSITION_ROUTE/$huntId") }
+                        onAddIndexClick = { navController.navigate("$NEW_INDICE_POSITION_ROUTE/$huntId") },
+                        onEditIndiceClick = { indiceId ->
+                            navController.navigate("$NEW_INDICE_CONFIG_ROUTE/$huntId/$indiceId")
+                        }
                     )
                 }
             }
@@ -272,12 +278,32 @@ fun TrailsOfWonderApp(
                 if (huntId != null && latitude != null && longitude != null) {
                     NewIndiceConfigPage(
                         huntId = huntId,
+                        editMode = false,
                         latitude = latitude,
                         longitude = longitude,
-                        onIndiceConfigured = { indice ->
-                            navController.navigate("$INDICES_RECAP_ROUTE/$huntId")
-                        },
+                        onIndiceConfigured = { navController.navigate("$INDICES_RECAP_ROUTE/$huntId") },
                         onBackClick = { navController.navigate("$NEW_INDICE_POSITION_ROUTE/$huntId")}
+                    )
+                }
+            }
+            composable(
+                route = "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{indiceId}",
+                arguments = listOf(
+                    navArgument("huntId") { type = NavType.StringType },
+                    navArgument("indiceId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val arguments = backStackEntry?.arguments
+                val huntId = arguments?.getString("huntId")
+                val indiceId = arguments?.getString("indiceId")
+
+                if (huntId != null && indiceId != null) {
+                    NewIndiceConfigPage(
+                        huntId = huntId,
+                        indiceId = indiceId,
+                        editMode = true,
+                        onIndiceConfigured = { navController.navigate("$INDICES_RECAP_ROUTE/$huntId") },
+                        onBackClick = { navController.navigate("$INDICES_RECAP_ROUTE/$huntId")}
                     )
                 }
             }

@@ -53,10 +53,9 @@ data class IndexItem(val title: String) : Parcelable
 fun IndicesRecapPage(
     huntId: String,
     onBackClick: () -> Unit,
-    onAddIndexClick: () -> Unit
+    onAddIndexClick: () -> Unit,
+    onEditIndiceClick: (String) -> Unit
 ) {
-
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -77,7 +76,8 @@ fun IndicesRecapPage(
         innerPadding ->
         VerticalReorderList(
             huntId = huntId,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
+            onEditIndiceClick = onEditIndiceClick
         )
     }
 }
@@ -85,7 +85,8 @@ fun IndicesRecapPage(
 @Composable
 fun VerticalReorderList(
     huntId: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onEditIndiceClick: (String) -> Unit
 ) {
     var huntIndices by rememberSaveable { mutableStateOf(emptyList<Indice>()) }
 
@@ -153,7 +154,9 @@ fun VerticalReorderList(
                         )
 
                         // Edit button
-                        IconButton(onClick = { /* Handle edit action */ }) {
+                        IconButton(onClick = {
+                            onEditIndiceClick(item.id)
+                        }) {
                             Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                         }
 

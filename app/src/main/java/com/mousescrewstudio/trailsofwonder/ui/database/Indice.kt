@@ -17,8 +17,8 @@ data class Indice(
     var order: Int = 0
 ) : Parcelable
 
-
-fun saveIndice(indice: Indice, onSuccess: (Indice) -> Unit) {
+// Crée un indice dans une chasse
+fun saveIndice(indice: Indice, onSuccess: () -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
     if (user != null) {
@@ -43,7 +43,7 @@ fun saveIndice(indice: Indice, onSuccess: (Indice) -> Unit) {
                         // Mise à jour de l'ordre après l'ajout réussi
                         //val newIndex = indice.copy(id = documentReference.id)
                         //updateIndiceOrder(newIndex, newIndex.order)
-                        onSuccess(indice)
+                        onSuccess()
                         println("Indice ajouté avec succès : ${documentReference.id}")
                     }
                     .addOnFailureListener { exception ->
@@ -58,6 +58,7 @@ fun saveIndice(indice: Indice, onSuccess: (Indice) -> Unit) {
     }
 }
 
+// Met à jour l'ordre de l'indice par rapport aux autres indices de la chasse
 fun updateIndiceOrder(indice: Indice, newOrder: Int) {
     val user = FirebaseAuth.getInstance().currentUser
 
@@ -81,6 +82,32 @@ fun updateIndiceOrder(indice: Indice, newOrder: Int) {
     }
 }
 
+// Met à jour les informations d'un indice
+fun updateIndice(indice: Indice, newName: String, newDescription: String, newPassword: String, onSuccess: () -> Unit) {
+    val user = FirebaseAuth.getInstance().currentUser
+
+    if (user != null) {
+        val userId = user.uid
+        db.collection("hunts")
+            .document(userId)
+            .collection("userHunts")
+            .document(indice.huntId)
+            .collection("indices")
+            .document(indice.id)
+            .update("name", newName, "description", newDescription, "password", newPassword)
+            .addOnSuccessListener {
+                // Succès de la mise à jour de l'ordre
+                onSuccess()
+                println("Indice mis à jour avec succès")
+            }
+            .addOnFailureListener { exception ->
+                // Gestion d'erreur
+                println("Erreur lors de la mise à jour de l'indice : $exception")
+            }
+    }
+}
+
+// Récupère tous les indices d'une chasse
 fun getIndicesFromHunt(huntId: String, onSuccess: (List<Indice>) -> Unit, onFailure: (Exception) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
@@ -108,7 +135,35 @@ fun getIndicesFromHunt(huntId: String, onSuccess: (List<Indice>) -> Unit, onFail
     }
 }
 
-// Ajoutez cette fonction à votre repository (ou là où vous gérez les accès à Firestore)
+// Récupère un indice à partir de son ID et de la chasse
+fun getIndiceFromId(huntId: String, indiceId: String, onSuccess: (Indice) -> Unit, onFailure: (Exception) -> Unit) {
+    val user = FirebaseAuth.getInstance().currentUser
+
+    if (user != null) {
+        val userId = user.uid
+
+        // Récupère toutes les chasses de l'utilisateur
+        db.collection("hunts")
+            .document(userId)
+            .collection("userHunts")
+            .document(huntId)
+            .collection("indices")
+            .document(indiceId)
+            .get()
+            .addOnSuccessListener { result ->
+                val indice = result.toObject(Indice::class.java)
+                val updatedIndice = indice?.copy(id = result.id)
+                if (updatedIndice != null) {
+                    onSuccess(updatedIndice)
+                }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+}
+
+// Supprime un indice
 fun deleteIndice(huntId: String, indiceId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
