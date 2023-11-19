@@ -52,7 +52,7 @@ fun updateHunt(huntId: String, hunt: Hunt, onSuccess: (String) -> Unit) {
             .document(userId)
             .collection("userHunts")
             .document(huntId)
-            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes)
+            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes, "tags", hunt.tags)
             .addOnSuccessListener {
                 // Chasse mise à jour avec succès
                 onSuccess(huntId)
