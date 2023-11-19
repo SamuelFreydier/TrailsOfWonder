@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 import com.mousescrewstudio.trailsofwonder.ui.database.deleteHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getHuntFromId
+import com.mousescrewstudio.trailsofwonder.ui.database.publishHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.saveHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.updateHunt
 import java.util.UUID
@@ -339,7 +340,7 @@ fun MainHuntCreationContent(
                     Text("Sauvegarder")
                 }
 
-                // Bouton de suppression que en mode édition
+                // Boutons de suppression et de publication que en mode édition
                 if(editMode) {
                     Button(
                         onClick = {
@@ -356,16 +357,38 @@ fun MainHuntCreationContent(
                     ) {
                         Text("Supprimer")
                     }
-                }
 
-                Button(
-                    onClick = { onPublishClick() },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp)
-                        .padding(start = 8.dp)
-                ) {
-                    Text("Publier")
+                    Button(
+                        onClick = {
+                            // Récupération des données de la chasse dans une seule structure
+                            val huntData = huntId?.let {
+                                Hunt(
+                                    id = it,
+                                    huntName = huntName,
+                                    location = location,
+                                    difficulty = difficultyIndex,
+                                    durationHours = durationHours,
+                                    durationMinutes = durationMinutes,
+                                    tags = tagsWithIds.map { it.tag }
+                                )
+                            }
+                            if (huntData != null) {
+                                publishHunt(huntData, {
+                                    updateHunt(huntId, huntData) { str ->
+                                        onPublishClick()
+                                    }
+                                }) { exception ->
+                                    println("Erreur lors de la publication de la chasse ${huntData.id} : $exception")
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp)
+                            .padding(start = 8.dp)
+                    ) {
+                        Text("Publier")
+                    }
                 }
             }
         }

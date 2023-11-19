@@ -13,16 +13,16 @@ data class Hunt (
     var durationMinutes: Int = 0,
     var tags: List<String> = emptyList(),
     var comment: List<String> = emptyList(),
-    var id: String = ""
-) {
-    //constructor(): this("", "", 0, 0, 0, emptyList())
-}
+    var id: String = "",
+    var creatorUserId: String = ""
+)
 
 fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
     if(user != null) {
         val userId = user.uid
+        hunt.creatorUserId = userId
 
         db.collection("hunts")
             .document(userId)
@@ -33,13 +33,13 @@ fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
                 // documentReference.id contient l'id du nouveau document
                 val huntId = documentReference.id
 
-                db.collection("huntsList")
-                    .add(hunt).addOnSuccessListener {
-                        println("Ajout : ${it.id}")
-                    }
-                    .addOnFailureListener {
-                        println("Erreur lors de la sauvegarde : $it")
-                    }
+                //db.collection("huntsList")
+                //    .add(hunt).addOnSuccessListener {
+                //        println("Ajout : ${it.id}")
+                //    }
+                //    .addOnFailureListener {
+                //        println("Erreur lors de la sauvegarde : $it")
+                //    }
 
                 onSuccess(huntId)
                 println("DocumentReference : ${documentReference.id}")
@@ -53,6 +53,64 @@ fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
     }
 }
 
+// Publication d'une chasse
+fun publishHunt(hunt: Hunt, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    // Si la chasse a déjà été publiée, on écrase l'ancienne publication
+    removePublishedHunt(
+        huntId = hunt.id,
+        onSuccess = {
+            val user = FirebaseAuth.getInstance().currentUser
+
+            if(user != null) {
+                val userId = user.uid
+                hunt.creatorUserId = userId
+                // Nouvelle publication
+                db.collection("publishedHunts")
+                    .add(hunt)
+                    .addOnSuccessListener {
+                        onSuccess()
+                    }
+                    .addOnFailureListener { exception ->
+                        onFailure(exception)
+                    }
+            }
+        },
+        onFailure = { exception ->
+            onFailure(exception)
+        }
+    )
+}
+
+// Suppression d'une chasse publiée
+fun removePublishedHunt(huntId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    db.collection("publishedHunts")
+        .whereEqualTo("id", huntId)
+        .get()
+        .addOnSuccessListener { querySnapshot ->
+            if (!querySnapshot.isEmpty) {
+                // Il devrait y avoir au plus un document, mais parcourons les résultats au cas où
+                for (document in querySnapshot.documents) {
+                    // Supprimer le document correspondant à la chasse publiée
+                    document.reference.delete()
+                        .addOnSuccessListener {
+                            onSuccess()
+                        }
+                        .addOnFailureListener { exception ->
+                            onFailure(exception)
+                        }
+                }
+            } else {
+                // Aucun document correspondant à cet ID n'a été trouvé
+                // Cela peut se produire si la chasse n'a pas encore été publiée
+                onSuccess()
+            }
+        }
+        .addOnFailureListener { exception ->
+            // Gestion d'erreur lors de la récupération du document
+            onFailure(exception)
+        }
+}
+
 fun updateHunt(huntId: String, hunt: Hunt, onSuccess: (String) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
@@ -63,7 +121,7 @@ fun updateHunt(huntId: String, hunt: Hunt, onSuccess: (String) -> Unit) {
             .document(userId)
             .collection("userHunts")
             .document(huntId)
-            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes, "tags", hunt.tags)
+            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes, "tags", hunt.tags, "creatorUserId", userId)
             .addOnSuccessListener {
                 // Chasse mise à jour avec succès
                 onSuccess(huntId)
