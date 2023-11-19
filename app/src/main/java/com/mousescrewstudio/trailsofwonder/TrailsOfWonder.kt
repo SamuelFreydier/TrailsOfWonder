@@ -32,7 +32,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.Destinations.FORGOT_PASSWORD_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
@@ -189,9 +188,19 @@ fun TrailsOfWonderApp(
                     navController.navigate("$INDICES_RECAP_ROUTE/$huntId") }
             ) }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage (
-                onClickToHuntSummary = { navController.navigate(HUNT_SUMMARY) }
+                navController = navController
             ) }
-            composable(HUNT_SUMMARY) { HuntSummary() }
+            /*composable(HUNT_SUMMARY) { HuntSummary(
+
+            ) }*/
+            composable(
+                "HuntSummary/{huntID}",
+                arguments = listOf(
+                    navArgument("huntID") {type = NavType.StringType })
+            ) { backStackEntry ->
+                val huntID = backStackEntry.arguments?.getString("huntID")
+                if(huntID != null) HuntSummary(huntID)
+            }
             composable(PROFILE_ROUTE) {
                 ProfilePage(
                     username = FirebaseAuth.getInstance().currentUser?.displayName.toString(),
@@ -228,6 +237,7 @@ fun TrailsOfWonderApp(
                     )
                 }
             }
+
             composable(
                 route = "$NEW_INDICE_POSITION_ROUTE/{huntId}",
                 arguments = listOf(
@@ -273,6 +283,4 @@ fun TrailsOfWonderApp(
             }
         }
     }
-
-
 }

@@ -1,5 +1,6 @@
 package com.mousescrewstudio.trailsofwonder.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Arrangement
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Surface
 import androidx.compose.material.TextField
@@ -31,14 +31,22 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
+import com.mousescrewstudio.trailsofwonder.ui.database.getAllUser
 import java.util.UUID
 
+var listUID = getAllUser()
 
 @Composable
 fun HuntJoinPage(
-    onClickToHuntSummary: () -> Unit
+    navController: NavController
 ) {
+
+    //var listUID by remember { mutableStateOf(mutableListOf<String>()) }
+    //listUID = getAllUser()
+    println(listUID)
+
     var data by remember { mutableStateOf(generateDummyHunts()) }
 
     var query by remember { mutableStateOf("") }
@@ -108,7 +116,7 @@ fun HuntJoinPage(
         Spacer(modifier = Modifier.height(16.dp))
 
 
-        SearchResultsHunt(data, onClickToHuntSummary)
+        SearchResultsHunt(data, navController)
     }
 }
 
@@ -150,7 +158,7 @@ fun SearchBar(searchQuery: String,
 @Composable
 fun SearchResultsHunt(
     listHunt: List<Hunt>,
-    onClickToHuntSummary: () -> Unit
+    navController: NavController
 ) {
 
     var huntInfo by remember { mutableStateOf("Aucun texte") }
@@ -170,17 +178,19 @@ fun SearchResultsHunt(
                     .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                ClickableText(
+                Text(
                     text = AnnotatedString(huntInfo),
-                    onClick = { 
-                        onClickToHuntSummary()
-                    },
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .clickable {
+                            navController.navigate("HuntSummary/${hunt.huntName}")
+                        }
+                        .padding(16.dp),
                 )
             }
         }
     }
 }
+
 
 
 fun filterHunt(query: String, tagsWithIds: List<TagItemData>) : List<Hunt>{

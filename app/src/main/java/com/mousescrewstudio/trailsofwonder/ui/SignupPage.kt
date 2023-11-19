@@ -43,6 +43,7 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mousescrewstudio.trailsofwonder.ui.components.showErrorDialog
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -193,6 +194,13 @@ private fun createAccount(
                 // Utilisateur créé avec succès
                 // MaJ du profil avec le username
                 val user = auth.currentUser
+
+                //println("UID = ${user?.uid}")
+                if (user != null) {
+                    addUsername(user.uid)
+                }
+                else println("Problème lors de l'ajout de l'UID dans la collection d'username")
+
                 val profileUpdates = UserProfileChangeRequest.Builder()
                     .setDisplayName(username)
                     .build()
@@ -215,8 +223,21 @@ private fun createAccount(
                 }
             }
         }
+}
 
-    // AJOUTER L'UID DE L'USER A UNE COLLECTION AUTRE ("username", par ex)
+// Fonction pour ajouter l'username à la liste dans Firebase
+fun addUsername(uid: String) {
+    val acces = FirebaseFirestore.getInstance().collection("username").document("UsernameList")
+    val newData = hashMapOf( uid to uid )
+
+    acces
+        .update(newData as Map<String, Any>)
+        .addOnSuccessListener {
+            println("Username ajouté avec succès.")
+        }
+        .addOnFailureListener {
+            println("Erreur lors de l'ajout de l'username")
+        }
 }
 
 // Méthode pour gérer les erreurs lors de la création du compte
