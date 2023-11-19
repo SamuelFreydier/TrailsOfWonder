@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
+import com.mousescrewstudio.trailsofwonder.ui.database.deleteHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getHuntFromId
 import com.mousescrewstudio.trailsofwonder.ui.database.saveHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.updateHunt
@@ -338,14 +339,23 @@ fun MainHuntCreationContent(
                     Text("Sauvegarder")
                 }
 
-                Button(
-                    onClick = { onDeleteClick() },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp)
-                        .padding(horizontal = 8.dp)
-                ) {
-                    Text("Supprimer")
+                // Bouton de suppression que en mode édition
+                if(editMode) {
+                    Button(
+                        onClick = {
+                            if (huntId != null) {
+                                deleteHunt(huntId, onDeleteClick) { exception ->
+                                    println("Erreur rencontrée lors de la suppression de la chasse : $exception")
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp)
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Text("Supprimer")
+                    }
                 }
 
                 Button(

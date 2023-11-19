@@ -74,6 +74,7 @@ fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit
         db.collection("hunts")
             .document(userId)
             .collection("userHunts")
+            .orderBy("huntName")
             .get()
             .addOnSuccessListener { result ->
                 val hunts = result.toObjects(Hunt::class.java)
@@ -111,6 +112,26 @@ fun getHuntFromId(huntId: String, onSuccess: (Hunt) -> Unit, onFailure: (Excepti
                     println("updatedhunt not null")
                     onSuccess(updatedHunt)
                 }
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+}
+
+// Supprime une chasse
+fun deleteHunt(huntId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
+    val user = FirebaseAuth.getInstance().currentUser
+
+    if (user != null) {
+        val userId = user.uid
+        db.collection("hunts")
+            .document(userId)
+            .collection("userHunts")
+            .document(huntId)
+            .delete()
+            .addOnSuccessListener {
+                onSuccess()
             }
             .addOnFailureListener { exception ->
                 onFailure(exception)

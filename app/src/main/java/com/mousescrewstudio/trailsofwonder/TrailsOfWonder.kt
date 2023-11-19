@@ -173,7 +173,7 @@ fun TrailsOfWonderApp(
                 onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) },
                 onSignUpSuccess = { navController.navigate(WELCOME_ROUTE) }
             ) }
-            // NE SERT A RIEN LA DEMARCHE SE FAIT PAR EMAIL
+            // NE SERT A RIEN, LA DEMARCHE SE FAIT PAR EMAIL
             composable(VERIFY_EMAIL_CODE_PAGE) { VerifyEmailCodePage(
                 onVerifyCode = { navController.navigate(NEW_PASSWORD_PAGE) },
                 onResendCode = { navController.navigate(FORGOT_PASSWORD_ROUTE) }
@@ -184,7 +184,7 @@ fun TrailsOfWonderApp(
             ) }
             composable(HUNT_CREATION_ROUTE) { HuntCreationPage(
                 editMode = false,
-                onDeleteClick = {},
+                onDeleteClick = { navController.navigate(PROFILE_ROUTE)},
                 onPublishClick = {},
                 onSaveClick = { navController.navigate(PROFILE_ROUTE) },
                 onIndicesClick = { huntId ->
@@ -204,7 +204,7 @@ fun TrailsOfWonderApp(
                     HuntCreationPage(
                         huntId = huntId,
                         editMode = true,
-                        onDeleteClick = {},
+                        onDeleteClick = { navController.navigate(PROFILE_ROUTE)},
                         onPublishClick = {},
                         onSaveClick = { navController.navigate(PROFILE_ROUTE) },
                         onIndicesClick = { huntId ->
