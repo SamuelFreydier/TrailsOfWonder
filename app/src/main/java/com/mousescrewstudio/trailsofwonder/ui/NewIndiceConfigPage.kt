@@ -99,7 +99,8 @@ fun NewIndiceConfigPage(
                             name = indiceName,
                             description = indiceDescription,
                             password = if (indicePassword.isNotBlank()) indicePassword else null,
-                            coordinates = LatLng(latitude.toDouble(), longitude.toDouble()) // Set coordinates accordingly
+                            latitude = latitude,
+                            longitude = longitude // Set coordinates accordingly
                         )
 
                     if (newIndice != null) {

@@ -3,23 +3,13 @@ package com.mousescrewstudio.trailsofwonder.ui
 import android.os.Parcelable
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -30,33 +20,28 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DragHandle
 import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
+import com.mousescrewstudio.trailsofwonder.ui.database.Indice
+import com.mousescrewstudio.trailsofwonder.ui.database.deleteIndice
+import com.mousescrewstudio.trailsofwonder.ui.database.getIndicesFromHunt
+import com.mousescrewstudio.trailsofwonder.ui.database.getUserHunts
 import kotlinx.parcelize.Parcelize
 import org.burnoutcrew.reorderable.ReorderableItem
 import org.burnoutcrew.reorderable.detectReorderAfterLongPress
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 import org.burnoutcrew.reorderable.reorderable
-import kotlin.math.roundToInt
 
 @Parcelize
 data class IndexItem(val title: String) : Parcelable
@@ -67,6 +52,8 @@ fun IndicesRecapPage(
     onBackClick: () -> Unit,
     onAddIndexClick: () -> Unit
 ) {
+
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -86,6 +73,7 @@ fun IndicesRecapPage(
     ) {
         innerPadding ->
         VerticalReorderList(
+            huntId = huntId,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -93,11 +81,25 @@ fun IndicesRecapPage(
 
 @Composable
 fun VerticalReorderList(
+    huntId: String,
     modifier: Modifier = Modifier
 ) {
-    var indices by rememberSaveable { mutableStateOf(List(10) { IndexItem("Index $it") }) }
+    var huntIndices by rememberSaveable { mutableStateOf(emptyList<Indice>()) }
+
+    getIndicesFromHunt(
+        huntId = huntId,
+        onSuccess = { indices ->
+            huntIndices = indices
+            println("Chasses récupérées avec succès")
+        },
+        onFailure = { exception ->
+            // Erreur à gérer
+            println("Erreur lors de la récupération des indices : $exception")
+        }
+    )
+    //var indices by rememberSaveable { mutableStateOf(List(10) { IndexItem("Index $it") }) }
     val state = rememberReorderableLazyListState(onMove = { from, to ->
-        indices = indices.toMutableList().apply {
+        huntIndices = huntIndices.toMutableList().apply {
             add(to.index, removeAt(from.index))
         }
     })
@@ -107,7 +109,7 @@ fun VerticalReorderList(
             .reorderable(state)
             .detectReorderAfterLongPress(state)
     ) {
-        items(indices, { it }) { item ->
+        items(huntIndices, { it }) { item ->
             ReorderableItem(state, key = item) { isDragging ->
                 val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                 Column(
@@ -125,7 +127,7 @@ fun VerticalReorderList(
                     ) {
                         // Text with Material Theme styling
                         Text(
-                            text = item.title,
+                            text = item.name,
                             style = MaterialTheme.typography.body1,
                             modifier = Modifier.weight(1f)
                         )
@@ -136,7 +138,20 @@ fun VerticalReorderList(
                         }
 
                         // Delete button
-                        IconButton(onClick = { indices = indices.filter { it != item } }) {
+                        IconButton(onClick = {
+                            huntIndices = huntIndices.filter { it != item }
+
+                            deleteIndice(
+                                huntId = huntId,
+                                indiceId = item.id,
+                                onSuccess = {
+                                    println("Indice supprimé avec succès")
+                                },
+                                onFailure = { exception ->
+                                    println("Erreur lors de la suppression de l'indice dans Firestore : $exception")
+                                }
+                            )
+                        }) {
                             Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                         }
 

@@ -53,11 +53,6 @@ fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit
             .get()
             .addOnSuccessListener { result ->
                 val hunts = result.toObjects(Hunt::class.java)
-                /*for (document in result) {
-                    // Convertis chaque document en instance de la classe Hunt
-                    //val hunt : Hunt = document.toObject(Hunt::class.java)
-                    //hunts.add(hunt)
-                }*/
                 onSuccess(hunts)
             }
             .addOnFailureListener { exception ->

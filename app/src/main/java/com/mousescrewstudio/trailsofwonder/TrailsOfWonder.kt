@@ -111,9 +111,9 @@ fun TrailsOfWonderApp(
         HUNT_JOIN_ROUTE -> { bottomBarState.value = true }
         HUNT_SUMMARY -> { bottomBarState.value = true }
         SETTINGS_ROUTE -> { bottomBarState.value = false }
-        INDICES_RECAP_ROUTE -> { bottomBarState.value = false }
-        NEW_INDICE_POSITION_ROUTE -> { bottomBarState.value = false }
-        NEW_INDICE_CONFIG_ROUTE -> { bottomBarState.value = false }
+        "$INDICES_RECAP_ROUTE/{huntId}" -> { bottomBarState.value = false }
+        "$NEW_INDICE_POSITION_ROUTE/{huntId}" -> { bottomBarState.value = false }
+        "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{latitude}/{longitude}" -> { bottomBarState.value = false }
     }
 
     // Barre de navigation du bas
