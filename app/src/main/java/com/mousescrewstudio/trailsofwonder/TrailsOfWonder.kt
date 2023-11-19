@@ -37,6 +37,7 @@ import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.INDICES_RECAP_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_SUMMARY
 import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
+import com.mousescrewstudio.trailsofwonder.Destinations.NEW_INDICE_POSITION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.NEW_PASSWORD_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.PROFILE_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.SETTINGS_ROUTE
@@ -50,6 +51,7 @@ import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
 import com.mousescrewstudio.trailsofwonder.ui.HuntSummary
 import com.mousescrewstudio.trailsofwonder.ui.IndicesRecapPage
 import com.mousescrewstudio.trailsofwonder.ui.LoginPage
+import com.mousescrewstudio.trailsofwonder.ui.NewIndicePositionPage
 import com.mousescrewstudio.trailsofwonder.ui.NewPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.ProfilePage
 import com.mousescrewstudio.trailsofwonder.ui.SettingsPage
@@ -69,6 +71,7 @@ object Destinations {
     const val PROFILE_ROUTE = "profile"
     const val SETTINGS_ROUTE = "settings"
     const val INDICES_RECAP_ROUTE = "indices-recap"
+    const val NEW_INDICE_POSITION_ROUTE = "new-indice-position"
 }
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
@@ -103,6 +106,7 @@ fun TrailsOfWonderApp(
         HUNT_SUMMARY -> { bottomBarState.value = true }
         SETTINGS_ROUTE -> { bottomBarState.value = false }
         INDICES_RECAP_ROUTE -> { bottomBarState.value = false }
+        NEW_INDICE_POSITION_ROUTE -> { bottomBarState.value = false }
     }
 
     // Barre de navigation du bas
@@ -203,7 +207,13 @@ fun TrailsOfWonderApp(
             composable(INDICES_RECAP_ROUTE) {
                 IndicesRecapPage(
                     onBackClick = { navController.navigate(HUNT_CREATION_ROUTE) },
-                    onAddIndexClick = { }
+                    onAddIndexClick = { navController.navigate(NEW_INDICE_POSITION_ROUTE) }
+                )
+            }
+            composable(NEW_INDICE_POSITION_ROUTE) {
+                NewIndicePositionPage(
+                    onPositionValidated = {},
+                    onBackClick = {navController.navigate(INDICES_RECAP_ROUTE)}
                 )
             }
         }

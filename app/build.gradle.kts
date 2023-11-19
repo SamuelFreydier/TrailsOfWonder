@@ -52,6 +52,11 @@ android {
 }
 
 dependencies {
+    implementation("com.google.accompanist:accompanist-permissions:0.32.0")
+    implementation ("com.google.maps.android:maps-compose:2.11.4")
+    implementation("com.google.maps.android:android-maps-utils:3.4.0")
+    implementation ("com.google.android.gms:play-services-maps:18.1.0")
+    implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation("androidx.startup:startup-runtime:1.1.1")
     implementation("androidx.compose.ui:ui-text-android:1.5.4")
     implementation("androidx.constraintlayout:constraintlayout-compose:1.0.1")
