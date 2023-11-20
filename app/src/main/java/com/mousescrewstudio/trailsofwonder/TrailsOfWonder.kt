@@ -1,5 +1,7 @@
 package com.mousescrewstudio.trailsofwonder
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
@@ -37,7 +39,7 @@ import com.mousescrewstudio.trailsofwonder.Destinations.FORGOT_PASSWORD_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_CREATION_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_JOIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.INDICES_RECAP_ROUTE
-import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_SUMMARY
+import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_SUMMARY_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.LOGIN_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.NEW_INDICE_CONFIG_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.NEW_INDICE_POSITION_ROUTE
@@ -54,7 +56,7 @@ import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
 import com.mousescrewstudio.trailsofwonder.ui.HuntJoinPage
-import com.mousescrewstudio.trailsofwonder.ui.HuntSummary
+import com.mousescrewstudio.trailsofwonder.ui.HuntSummaryPage
 import com.mousescrewstudio.trailsofwonder.ui.IndicesRecapPage
 import com.mousescrewstudio.trailsofwonder.ui.LoginPage
 import com.mousescrewstudio.trailsofwonder.ui.NewIndiceConfigPage
@@ -77,7 +79,7 @@ object Destinations {
     const val NEW_PASSWORD_PAGE = "newpassword"
     const val HUNT_CREATION_ROUTE = "hunt-creation"
     const val HUNT_JOIN_ROUTE = "hunt-join"
-    const val HUNT_SUMMARY = "hunt-summary"
+    const val HUNT_SUMMARY_ROUTE = "hunt-summary"
     const val PROFILE_ROUTE = "profile"
     const val SETTINGS_ROUTE = "settings"
     const val INDICES_RECAP_ROUTE = "indices-recap"
@@ -96,6 +98,7 @@ sealed class Screen(val route: String, @StringRes val resourceId: Int, val image
     object Login: Screen(LOGIN_ROUTE, R.string.login, Icons.Filled.Login)
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrailsOfWonderApp(
@@ -119,7 +122,7 @@ fun TrailsOfWonderApp(
         HUNT_CREATION_ROUTE -> { bottomBarState.value = true }
         "$HUNT_CREATION_ROUTE/{huntId}" -> {bottomBarState.value = false}
         HUNT_JOIN_ROUTE -> { bottomBarState.value = true }
-        HUNT_SUMMARY -> { bottomBarState.value = true }
+        "$HUNT_SUMMARY_ROUTE/{huntId}" -> { bottomBarState.value = false }
         SETTINGS_ROUTE -> { bottomBarState.value = false }
         "$INDICES_RECAP_ROUTE/{huntId}" -> { bottomBarState.value = false }
         "$NEW_INDICE_POSITION_ROUTE/{huntId}" -> { bottomBarState.value = false }
@@ -228,18 +231,21 @@ fun TrailsOfWonderApp(
 
             }
             composable(HUNT_JOIN_ROUTE) { HuntJoinPage (
-                navController = navController,
+                onHuntClicked = {huntId ->
+                    navController.navigate("$HUNT_SUMMARY_ROUTE/$huntId")
+                },
                 chatPage = {navController.navigate(CHAT_PAGE) }
             ) }
             composable(
-                route = "HuntSummary/{huntID}",
+                route = "$HUNT_SUMMARY_ROUTE/{huntId}",
                 arguments = listOf(
-                    navArgument("huntID") {type = NavType.StringType })
+                    navArgument("huntId") {type = NavType.StringType })
             ) { backStackEntry ->
-                val huntID = backStackEntry.arguments?.getString("huntID")
-                if(huntID != null) HuntSummary(
-                    huntID = huntID,
-                    onTeamCreation = {navController.navigate(TEAM_CREATION) }
+                val huntId = backStackEntry.arguments?.getString("huntId")
+                if(huntId != null) HuntSummaryPage(
+                    huntId = huntId,
+                    onHuntStart = {navController.navigate(TEAM_CREATION) },
+                    onBackClick = {navController.popBackStack()}
                 )
             }
             composable(PROFILE_ROUTE) {

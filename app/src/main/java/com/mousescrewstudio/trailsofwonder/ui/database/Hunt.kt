@@ -2,6 +2,7 @@ package com.mousescrewstudio.trailsofwonder.ui.database
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
 
 val db = FirebaseFirestore.getInstance()
 
@@ -66,6 +67,22 @@ fun getPublishedHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) ->
                 it.copy(id = result.documents[hunts.indexOf(it)].id)
             }
             onSuccess(updatedHunts)
+        }
+        .addOnFailureListener { exception ->
+            onFailure(exception)
+        }
+}
+
+// Récupère une chasse publiée avec son ID
+fun getPublishedHuntById(huntId: String, onSuccess: (Hunt) -> Unit, onFailure: (Exception) -> Unit) {
+    db.collection("publishedHunts")
+        .document(huntId)
+        .get()
+        .addOnSuccessListener { result ->
+            val hunt = result.toObject(Hunt::class.java)
+            if (hunt != null) {
+                onSuccess(hunt)
+            }
         }
         .addOnFailureListener { exception ->
             onFailure(exception)

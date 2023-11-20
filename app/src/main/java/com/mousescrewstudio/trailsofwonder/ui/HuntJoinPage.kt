@@ -41,7 +41,7 @@ import java.util.UUID
 
 @Composable
 fun HuntJoinPage(
-    navController: NavController,
+    onHuntClicked: (String) -> Unit,
     chatPage: () -> Unit
 ) {
     var query by remember { mutableStateOf("") }
@@ -72,6 +72,8 @@ fun HuntJoinPage(
             .padding(16.dp),
     ) {
         item {
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = "Rejoindre une chasse",
                 style = MaterialTheme.typography.headlineMedium,
@@ -141,7 +143,7 @@ fun HuntJoinPage(
                     .fillMaxWidth()
                     .padding(8.dp)
                     .clickable {
-                        navController.navigate("HuntSummary/${hunt.huntName}")
+                        onHuntClicked(hunt.id)
                     },
                 elevation = 8.dp
             ) {
