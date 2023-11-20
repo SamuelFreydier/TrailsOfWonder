@@ -22,16 +22,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
-        //locationCallback = object : LocationCallback() {
-        //    override fun onLocationResult(p0: LocationResult) {
-        //        super.onLocationResult(p0)
-        //        currentLocation = p0.lastLocation
-//
-        //    }
-        //}
-
         // Initialisation de Firebase
         FirebaseApp.initializeApp(this)
 
@@ -39,12 +29,10 @@ class MainActivity : ComponentActivity() {
             TrailsOfWonderTheme {
                 val auth = FirebaseAuth.getInstance()
                 val currentUser = auth.currentUser
-                val startRoute = if(currentUser == null) Screen.Login else Screen.Welcome
+                val startRoute = if(currentUser == null) Screen.Login else Screen.HuntJoin
                 TrailsOfWonderApp(startDestination = startRoute.route)
             }
         }
-
-
     }
 
     override fun onResume() {

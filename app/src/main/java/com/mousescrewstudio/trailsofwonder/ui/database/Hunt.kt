@@ -14,7 +14,8 @@ data class Hunt (
     var tags: List<String> = emptyList(),
     var comment: List<String> = emptyList(),
     var id: String = "",
-    var creatorUserId: String = ""
+    var creatorUserId: String = "",
+    var creatorUsername: String = ""
 )
 
 fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
@@ -23,6 +24,7 @@ fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
     if(user != null) {
         val userId = user.uid
         hunt.creatorUserId = userId
+        hunt.creatorUsername = user.displayName.toString()
 
         db.collection("hunts")
             .document(userId)
@@ -53,6 +55,23 @@ fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
     }
 }
 
+// Récupération des chasses publiées
+fun getPublishedHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit) {
+    // Récupère toutes les chasses de l'utilisateur
+    db.collection("publishedHunts")
+        .get()
+        .addOnSuccessListener { result ->
+            val hunts = result.toObjects(Hunt::class.java)
+            val updatedHunts = hunts.map {
+                it.copy(id = result.documents[hunts.indexOf(it)].id)
+            }
+            onSuccess(updatedHunts)
+        }
+        .addOnFailureListener { exception ->
+            onFailure(exception)
+        }
+}
+
 // Publication d'une chasse
 fun publishHunt(hunt: Hunt, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     // Si la chasse a déjà été publiée, on écrase l'ancienne publication
@@ -64,6 +83,7 @@ fun publishHunt(hunt: Hunt, onSuccess: () -> Unit, onFailure: (Exception) -> Uni
             if(user != null) {
                 val userId = user.uid
                 hunt.creatorUserId = userId
+                hunt.creatorUsername = user.displayName.toString()
                 // Nouvelle publication
                 db.collection("publishedHunts")
                     .add(hunt)
@@ -121,7 +141,7 @@ fun updateHunt(huntId: String, hunt: Hunt, onSuccess: (String) -> Unit) {
             .document(userId)
             .collection("userHunts")
             .document(huntId)
-            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes, "tags", hunt.tags, "creatorUserId", userId)
+            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes, "tags", hunt.tags, "creatorUserId", userId, "creatorUsername", user.displayName.toString())
             .addOnSuccessListener {
                 // Chasse mise à jour avec succès
                 onSuccess(huntId)

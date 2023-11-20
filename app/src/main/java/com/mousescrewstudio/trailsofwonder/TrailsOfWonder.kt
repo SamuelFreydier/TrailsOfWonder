@@ -91,6 +91,7 @@ object Destinations {
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
     object Welcome: Screen(WELCOME_ROUTE, R.string.welcome, Icons.Filled.Home)
     object HuntCreation: Screen(HUNT_CREATION_ROUTE, R.string.create, Icons.Filled.AddLocationAlt)
+    object HuntJoin: Screen(HUNT_JOIN_ROUTE, R.string.welcome, Icons.Filled.Home)
     object Profile: Screen(PROFILE_ROUTE, R.string.profile, Icons.Filled.AccountCircle)
     object Login: Screen(LOGIN_ROUTE, R.string.login, Icons.Filled.Login)
 }
@@ -102,7 +103,7 @@ fun TrailsOfWonderApp(
     navController: NavHostController = rememberNavController(),
     startDestination: String = WELCOME_ROUTE,
     screenItems: List<Screen> = listOf(
-        Screen.Welcome,
+        Screen.HuntJoin,
         Screen.HuntCreation,
         Screen.Profile
     )
@@ -175,7 +176,7 @@ fun TrailsOfWonderApp(
             composable(LOGIN_ROUTE) { LoginPage(
                 onNavigateToForgotPassword = { navController.navigate(FORGOT_PASSWORD_ROUTE) },
                 onNavigateToSignup = { navController.navigate(SIGNUP_ROUTE) },
-                onLoginSuccess = { navController.navigate(WELCOME_ROUTE) }
+                onLoginSuccess = { navController.navigate(HUNT_JOIN_ROUTE) }
             ) }
             composable(FORGOT_PASSWORD_ROUTE) { ForgotPasswordPage(
                 onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) },
@@ -183,7 +184,7 @@ fun TrailsOfWonderApp(
             ) }
             composable(SIGNUP_ROUTE) { SignupPage(
                 onNavigateToLogin = { navController.navigate(LOGIN_ROUTE) },
-                onSignUpSuccess = { navController.navigate(WELCOME_ROUTE) }
+                onSignUpSuccess = { navController.navigate(HUNT_JOIN_ROUTE) }
             ) }
             // NE SERT A RIEN, LA DEMARCHE SE FAIT PAR EMAIL
             composable(VERIFY_EMAIL_CODE_PAGE) { VerifyEmailCodePage(

@@ -13,11 +13,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.TextField
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,8 +37,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getAllHunt
+import com.mousescrewstudio.trailsofwonder.ui.database.getPublishedHunts
+import com.mousescrewstudio.trailsofwonder.ui.database.getUserHunts
 import java.util.UUID
 
 
@@ -42,85 +50,133 @@ fun HuntJoinPage(
     navController: NavController,
     chatPage: () -> Unit
 ) {
-
-    var data by remember { mutableStateOf(generateHunts()) }
-
     var query by remember { mutableStateOf("") }
     var tagText by remember { mutableStateOf(TextFieldValue()) }
     var tagsWithIds by remember { mutableStateOf(listOf<TagItemData>()) }
-
-    Column(modifier = Modifier
-        .fillMaxSize()
-        .padding(16.dp)
-    ) {
-        Text(
-            text = "Joindre une chasse au trésor",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Button(
-            onClick = { navController.navigate("ChatPage/DummyPerson") }
-        ) {
-            Text("Chat")
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-        SearchBar(
-            searchQuery = query,
-            onSearchQueryChange = { newQuery ->
-                query = newQuery
-                data = filterHunt(newQuery, tagsWithIds)
+    var publishedHunts by remember { mutableStateOf(emptyList<Hunt>()) }
+    var filteredPublishedHunts by remember { mutableStateOf(emptyList<Hunt>()) }
+    LaunchedEffect(FirebaseAuth.getInstance().currentUser?.uid) {
+        getPublishedHunts(
+            onSuccess = { hunts ->
+                publishedHunts = hunts
+                filteredPublishedHunts = publishedHunts
+                println("Chasses récupérées avec succès")
+            },
+            onFailure = { exception ->
+                // Erreur à gérer
+                println("Erreur lors de la récupération des chasses : $exception")
             }
         )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp))
-        {
-            TextField(
-                value = tagText,
-                onValueChange = { tagText = it },
-                label = { Text("Tag") },
-                modifier = Modifier
-                    .weight(2f)
-                    .padding(bottom = 16.dp)
-            )
-            Button(
-                onClick = {
-                    if (tagText.text.isNotEmpty()) {
-                        tagsWithIds = tagsWithIds + TagItemData(
-                            UUID.randomUUID().toString(),
-                            tagText.text
-                        )
-                        tagText = TextFieldValue()
-
-                        data = filterHunt(
-                            query,
-                            tagsWithIds
-                        )   // On met à jour les tags + on relance la recherche
-                    }
-                },
-                modifier = Modifier
-                    .weight(1f)
-                    .height(56.dp)
-            ) {
-                Text("Ajouter")
-            }
-        }
-
-
-        TagsList(tags = tagsWithIds, onTagRemoveClick = { tagId ->
-            tagsWithIds = tagsWithIds.filterNot { it.id == tagId }
-            data = filterHunt(query, tagsWithIds)   // Si un tag est supprimé, on recharge la recherche aussi
-        })
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        SearchResultsHunt(data, navController)
     }
+
+    val scrollState = rememberLazyListState()
+
+    LazyColumn(
+        state = scrollState,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+    ) {
+        item {
+            Text(
+                text = "Rejoindre une chasse",
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            //Button(
+            //    onClick = { navController.navigate("ChatPage/DummyPerson") }
+            //) {
+            //    Text("Chat")
+            //}
+
+            Spacer(modifier = Modifier.height(12.dp))
+            SearchBar(
+                searchQuery = query,
+                onSearchQueryChange = { newQuery ->
+                    query = newQuery
+                    filteredPublishedHunts = filterHunt(newQuery, tagsWithIds, publishedHunts)
+                }
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp))
+            {
+                TextField(
+                    value = tagText,
+                    onValueChange = { tagText = it },
+                    label = { Text("Tag") },
+                    modifier = Modifier
+                        .weight(2f)
+                        .padding(bottom = 16.dp)
+                )
+                Button(
+                    onClick = {
+                        if (tagText.text.isNotEmpty()) {
+                            tagsWithIds = tagsWithIds + TagItemData(
+                                UUID.randomUUID().toString(),
+                                tagText.text
+                            )
+                            tagText = TextFieldValue()
+                            filteredPublishedHunts = filterHunt(query, tagsWithIds, publishedHunts) // On met à jour les tags + on relance la recherche
+                        }
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
+                ) {
+                    Text("Ajouter")
+                }
+            }
+
+
+            TagsList(tags = tagsWithIds, onTagRemoveClick = { tagId ->
+                tagsWithIds = tagsWithIds.filterNot { it.id == tagId }
+                filteredPublishedHunts = filterHunt(query, tagsWithIds, publishedHunts)   // Si un tag est supprimé, on recharge la recherche aussi
+            })
+
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
+        items(filteredPublishedHunts) { hunt ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .clickable {
+                        navController.navigate("HuntSummary/${hunt.huntName}")
+                    },
+                elevation = 8.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(text = hunt.huntName, style = MaterialTheme.typography.headlineSmall)
+                    Text(text = "Localisation: ${hunt.location}", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "Difficulté: ${getDifficultyString(hunt.difficulty)}", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "Durée estimée: ${hunt.durationHours}h${hunt.durationMinutes}min", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "Créateur: ${hunt.creatorUsername}", style = MaterialTheme.typography.bodyMedium)
+
+                    // Tags
+                    if (hunt.tags.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Tags: ${hunt.tags.joinToString(", ")}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    //SearchResultsHunt(publishedHunts, navController)
+
+
 }
 
 
@@ -157,48 +213,23 @@ fun SearchBar(searchQuery: String,
     }
 }
 
-
 @Composable
-fun SearchResultsHunt(
-    listHunt: List<Hunt>,
-    navController: NavController
-) {
-
-    var huntInfo by remember { mutableStateOf("Aucun texte") }
-
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp)
-    ) {
-        items(listHunt) { hunt ->
-
-            huntInfo = "Chasse '${hunt.huntName}' située à ${hunt.location}"
-            
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = AnnotatedString(huntInfo),
-                    modifier = Modifier
-                        .clickable {
-                            navController.navigate("HuntSummary/${hunt.huntName}")
-                        }
-                        .padding(16.dp),
-                )
-            }
-        }
+fun getDifficultyString(difficulty: Int): String {
+    return when (difficulty) {
+        0 -> "Facile"
+        1 -> "Moyen"
+        2 -> "Difficile"
+        else -> "Inconnu"
     }
 }
 
+fun filterHunt(
+    query: String,
+    tagsWithIds: List<TagItemData>,
+    publishedHunts: List<Hunt>
+) : List<Hunt> {
 
-
-fun filterHunt(query: String, tagsWithIds: List<TagItemData>) : List<Hunt>{
-
-    val res = generateHunts().filter {
+    val res = publishedHunts.filter {
         it.huntName.contains(query, ignoreCase = true) //|| it.tags.contains(tagsWithIds)
     }
 
