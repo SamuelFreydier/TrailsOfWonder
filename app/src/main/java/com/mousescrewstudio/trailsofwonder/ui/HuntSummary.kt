@@ -28,7 +28,8 @@ import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 
 @Composable
 fun HuntSummary(
-    huntID: String
+    huntID: String,
+    onTeamCreation: () -> Unit
 ) {
 
     var chasseTest = Hunt(huntID, huntID, 1, 1, 1, listOf<String>("1"), listOf<String>("Commentaire1", "Commentaire2"))
@@ -45,7 +46,8 @@ fun HuntSummary(
     )
 
 
-    if( i == 1 ) Afficher(hunt = chasseTest)
+    if( i == 1 ) Afficher(hunt = chasseTest, onTeamCreation)
+    else Afficher(hunt = chasseTest, onTeamCreation)
 
 }
 
@@ -71,7 +73,7 @@ fun GetChasse(huntID : String, onSuccess: (Hunt) -> Unit) {
 }
 
 @Composable
-fun Afficher(hunt: Hunt) {
+fun Afficher(hunt: Hunt, onTeamCreation: () -> Unit) {
 
     Column(modifier = Modifier
         .fillMaxSize()
@@ -103,7 +105,7 @@ fun Afficher(hunt: Hunt) {
         }
         Spacer(modifier = Modifier.height(16.dp))
         Button(
-            onClick = {},
+            onClick = { onTeamCreation() },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(80.dp)
@@ -147,5 +149,4 @@ fun Afficher(hunt: Hunt) {
 @Preview
 @Composable
 fun PreviewSummary() {
-    HuntSummary("Coucou")
 }

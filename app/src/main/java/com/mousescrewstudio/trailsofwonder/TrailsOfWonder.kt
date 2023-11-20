@@ -48,6 +48,8 @@ import com.mousescrewstudio.trailsofwonder.Destinations.SIGNUP_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.VERIFY_EMAIL_CODE_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.WELCOME_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.CHAT_PAGE
+import com.mousescrewstudio.trailsofwonder.Destinations.TEAM_CREATION
+import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_ONGOING
 import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
@@ -63,6 +65,8 @@ import com.mousescrewstudio.trailsofwonder.ui.SettingsPage
 import com.mousescrewstudio.trailsofwonder.ui.SignupPage
 import com.mousescrewstudio.trailsofwonder.ui.VerifyEmailCodePage
 import com.mousescrewstudio.trailsofwonder.ui.ChatPage
+import com.mousescrewstudio.trailsofwonder.ui.TeamCreation
+import com.mousescrewstudio.trailsofwonder.ui.HuntOngoing
 
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
@@ -80,6 +84,8 @@ object Destinations {
     const val NEW_INDICE_POSITION_ROUTE = "new-indice-position"
     const val NEW_INDICE_CONFIG_ROUTE = "new-indice-config"
     const val CHAT_PAGE = "chat-page"
+    const val TEAM_CREATION = "team-creation"
+    const val HUNT_ONGOING = "hunt-ongoing"
 }
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
@@ -119,6 +125,8 @@ fun TrailsOfWonderApp(
         "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{latitude}/{longitude}" -> { bottomBarState.value = false }
         "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{indiceId}" -> {bottomBarState.value = false}
         CHAT_PAGE -> { bottomBarState.value = true }
+        TEAM_CREATION -> { bottomBarState.value = true }
+        HUNT_ONGOING -> { bottomBarState.value = true }
     }
 
     // Barre de navigation du bas
@@ -223,12 +231,15 @@ fun TrailsOfWonderApp(
                 chatPage = {navController.navigate(CHAT_PAGE) }
             ) }
             composable(
-                "HuntSummary/{huntID}",
+                route = "HuntSummary/{huntID}",
                 arguments = listOf(
                     navArgument("huntID") {type = NavType.StringType })
             ) { backStackEntry ->
                 val huntID = backStackEntry.arguments?.getString("huntID")
-                if(huntID != null) HuntSummary(huntID)
+                if(huntID != null) HuntSummary(
+                    huntID = huntID,
+                    onTeamCreation = {navController.navigate(TEAM_CREATION) }
+                )
             }
             composable(PROFILE_ROUTE) {
                 ProfilePage(
@@ -344,6 +355,19 @@ fun TrailsOfWonderApp(
                 val receiverId = backStackEntry.arguments?.getString("receiverId")
                 if(receiverId != null) ChatPage(receiverId)
             }
+
+            composable(TEAM_CREATION) { TeamCreation (
+                navController = navController
+            ) }
+            composable(
+                "HuntOngoing/{ID}",
+                arguments = listOf(
+                    navArgument("ID") {type = NavType.StringType })
+            ) { backStackEntry ->
+                val ID = backStackEntry.arguments?.getString("ID")
+                if(ID != null) HuntOngoing(ID)
+            }
+
         }
     }
 }
