@@ -52,6 +52,7 @@ import com.mousescrewstudio.trailsofwonder.Destinations.WELCOME_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.CHAT_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.TEAM_CREATION
 import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_ONGOING
+import com.mousescrewstudio.trailsofwonder.Destinations.VICTORY_PAGE
 import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
 import com.mousescrewstudio.trailsofwonder.ui.HuntCreationPage
@@ -69,6 +70,7 @@ import com.mousescrewstudio.trailsofwonder.ui.VerifyEmailCodePage
 import com.mousescrewstudio.trailsofwonder.ui.ChatPage
 import com.mousescrewstudio.trailsofwonder.ui.TeamCreation
 import com.mousescrewstudio.trailsofwonder.ui.HuntOngoing
+import com.mousescrewstudio.trailsofwonder.ui.VictoryPage
 
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
@@ -88,6 +90,7 @@ object Destinations {
     const val CHAT_PAGE = "chat-page"
     const val TEAM_CREATION = "team-creation"
     const val HUNT_ONGOING = "hunt-ongoing"
+    const val VICTORY_PAGE = "victory-page"
 }
 
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
@@ -131,6 +134,7 @@ fun TrailsOfWonderApp(
         CHAT_PAGE -> { bottomBarState.value = true }
         TEAM_CREATION -> { bottomBarState.value = true }
         HUNT_ONGOING -> { bottomBarState.value = true }
+        VICTORY_PAGE -> { bottomBarState.value = true }
     }
 
     // Barre de navigation du bas
@@ -245,7 +249,15 @@ fun TrailsOfWonderApp(
                 if(huntId != null) HuntSummaryPage(
                     huntId = huntId,
                     onHuntStart = {navController.navigate(TEAM_CREATION) },
+                    /*onHuntStart = {huntId ->
+                        navController.navigate("$TEAM_CREATION/$huntId")
+                    },*/
                     onBackClick = {navController.popBackStack()}
+
+                /*val huntID = backStackEntry.arguments?.getString("huntID")
+                if(huntID != null) HuntSummary(
+                    huntID = huntID,
+                    navController = navController*/
                 )
             }
             composable(PROFILE_ROUTE) {
@@ -366,13 +378,35 @@ fun TrailsOfWonderApp(
             composable(TEAM_CREATION) { TeamCreation (
                 navController = navController
             ) }
+            /*composable(
+                "TeamCreation/{huntID}",
+                arguments = listOf(
+                    navArgument("huntID") {type = NavType.StringType })
+            ) { backStackEntry ->
+                val huntID = backStackEntry.arguments?.getString("huntID")
+                if(huntID != null) TeamCreation(navController, huntID)
+            }*/
             composable(
                 "HuntOngoing/{ID}",
                 arguments = listOf(
                     navArgument("ID") {type = NavType.StringType })
             ) { backStackEntry ->
                 val ID = backStackEntry.arguments?.getString("ID")
-                if(ID != null) HuntOngoing(ID)
+                if(ID != null) HuntOngoing(ID,
+                    /*onClickVictory = { huntId ->
+                        navController.navigate("$VICTORY_PAGE/$huntId")})*/
+                    navController = navController)
+            }
+
+            composable(
+                "VictoryPage/{huntId}",
+                arguments = listOf(
+                    navArgument("huntId") {type = NavType.StringType })
+            ) { backStackEntry ->
+                val huntId = backStackEntry.arguments?.getString("huntId")
+                if(huntId != null) VictoryPage(
+                    retourMenu = { navController.navigate(WELCOME_ROUTE)},
+                    huntId)
             }
 
         }

@@ -2,7 +2,6 @@ package com.mousescrewstudio.trailsofwonder.ui.database
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.toObject
 
 val db = FirebaseFirestore.getInstance()
 
@@ -245,3 +244,22 @@ fun deleteHunt(huntId: String, onSuccess: () -> Unit, onFailure: (Exception) -> 
     }
 }
 
+fun getOngoingHunt(huntID : String, onSuccess: (List<Hunt>) -> Unit) {
+    val db = FirebaseFirestore.getInstance()
+    db.collection("publishedHunts")
+        .whereEqualTo("huntName", huntID)
+        .addSnapshotListener { snapshot, e ->
+            if (e != null) {
+                println("Erreur")
+                return@addSnapshotListener
+            }
+
+            var listHunt = mutableListOf<Hunt>()
+            if (snapshot != null && !snapshot.isEmpty) {
+                val m = snapshot.toObjects(Hunt::class.java)
+                listHunt = m
+            }
+
+            onSuccess(listHunt)
+        }
+}

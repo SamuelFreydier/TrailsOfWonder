@@ -26,23 +26,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
 
 @Composable
 fun TeamCreation(
-    navController: NavController
+    navController: NavController,
+    //huntID: String
 ) {
 
     var teamName by remember { mutableStateOf("") }
     var teamMember by remember { mutableStateOf("") }
     var teamList by remember { mutableStateOf(listOf<String>()) }
 
+    val huntID = ""
 
     Column(modifier = Modifier
         .fillMaxSize()
         .padding(16.dp)
     ) {
         Text(
-            text = "Créer une équipe",
+            text = "Créer une équipe pour la chasse ${huntID}",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.secondary
         )
@@ -84,8 +87,10 @@ fun TeamCreation(
             Button(
                 onClick = {
                     val data = hashMapOf(
+                        "Hunt" to huntID,
                         "TeamName" to teamName,
                         "Members" to teamList,
+                        "StartDate" to Timestamp.now()
                     )
                     val db = FirebaseFirestore.getInstance().collection("huntOnGoing")
                     db.add(data)
