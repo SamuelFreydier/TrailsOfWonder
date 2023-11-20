@@ -1,6 +1,5 @@
 package com.mousescrewstudio.trailsofwonder.ui.database
 
-import androidx.compose.runtime.Composable
 import com.google.firebase.firestore.FirebaseFirestore
 
 data class Message(
@@ -8,33 +7,30 @@ data class Message(
     val receiver: String,
     val content: String,
 ) {
+    constructor() : this("", "", "")
 }
-
 fun sendMessage(message: Message) {
     val firestore = FirebaseFirestore.getInstance()
     firestore.collection("messages").add(message)
 }
 
-@Composable
-fun GetAllMessages(senderId: String, receiverId: String, onSucess: (ArrayList<String>) -> Unit) {
+
+fun GetAllMessages(senderId: String, onSucess: (MutableList<Message>)/*(ArrayList<String>)*/ -> Unit) {
     val db = FirebaseFirestore.getInstance()
     db.collection("messages")
-        //.whereEqualTo("senderId", senderId)
-        //.whereEqualTo("receiverId", receiverId)
+        .whereEqualTo("sender", senderId)
         .addSnapshotListener { snapshot, e ->
             if (e != null) {
                 println("Erreur")
                 return@addSnapshotListener
             }
 
-            val messages = ArrayList<String>()
-            for (doc in snapshot!!) {
-                doc.getString("content")?.let {
-                    messages.add(it)
-                }
-                val value = doc.data.values
-                println("value $value")
+            var messages = mutableListOf<Message>()
+            if (snapshot != null && !snapshot.isEmpty) {
+                val m = snapshot.toObjects(Message::class.java)
+                messages = m
             }
+
             onSucess(messages)
 
         }

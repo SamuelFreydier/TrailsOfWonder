@@ -3,7 +3,6 @@ package com.mousescrewstudio.trailsofwonder.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.TextField
@@ -31,7 +28,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.SoftwareKeyboardController
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,9 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
-import com.mousescrewstudio.trailsofwonder.ui.database.getAllHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getPublishedHunts
-import com.mousescrewstudio.trailsofwonder.ui.database.getUserHunts
 import java.util.UUID
 
 
@@ -246,27 +240,7 @@ fun filterHunt(
 
 
 fun generateHunts(): List<Hunt> {
-
     var x = mutableListOf<Hunt>()
-
-    getAllHunt (
-        onSuccess = { hunts ->
-            x = hunts
-            println("Chasses récupérées avec succès $x")
-        },
-        onFailure = {
-            x = listOf(
-                Hunt("Un", "Paris", 1, 1, 1, listOf<String>("1")),
-                Hunt("Deux", "Londre", 1, 1, 1, listOf<String>("2")),
-                Hunt("Trois", "Budapest", 1, 1, 1, listOf<String>("2")),
-                Hunt("Quatre", "Fontaine", 1, 1, 1, listOf<String>("4")),
-                Hunt("Cinq", "Numazu", 1, 1, 1, listOf<String>("5")),
-                Hunt("Six", "Macross City", 1, 1, 1, listOf<String>("5")),
-                Hunt("Septn", "Belobog", 1, 1, 1, listOf<String>("5", "1"))
-            ).toMutableList()
-        }
-    )
-
     x = listOf(
         Hunt("Un", "Paris", 1, 1, 1, listOf<String>("1")),
         Hunt("Deux", "Londre", 1, 1, 1, listOf<String>("2")),
