@@ -41,11 +41,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
+import com.mousescrewstudio.trailsofwonder.ui.database.createOngoingHunt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamCreationPage(
-    onStartClick: () -> Unit,
+    huntId: String,
+    onStartClick: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
 
@@ -123,16 +125,19 @@ fun TeamCreationPage(
                                 "TeamName" to teamName,
                                 "Members" to teamList,
                             )
-                            val db = FirebaseFirestore.getInstance().collection("huntOnGoing")
-                            db.add(data)
-                                .addOnSuccessListener {
-                                    println("Equipe ajouté avec succès")
-                                    onStartClick()
-                                }
-                                .addOnFailureListener {
-                                    println("Erreur lors de l'ajout de l'équipe")
-                                }
+                            println("ButtonClicked")
+                            createOngoingHunt(
+                                huntId = huntId,
+                                teamMembers = teamList,
+                                { ongoingHuntId ->
+                                    println("startClick")
 
+                                    onStartClick(ongoingHuntId)
+                                },
+                                { exception ->
+                                    println("Erreur lors de la création de la chasse : $exception")
+                                }
+                            )
                         },
                         modifier = Modifier
                             .weight(1.5f)

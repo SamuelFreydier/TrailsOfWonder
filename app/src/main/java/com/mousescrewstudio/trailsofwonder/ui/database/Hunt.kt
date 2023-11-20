@@ -1,10 +1,13 @@
 package com.mousescrewstudio.trailsofwonder.ui.database
 
+import android.os.Parcelable
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.parcelize.Parcelize
 
 val db = FirebaseFirestore.getInstance()
 
+@Parcelize
 data class Hunt (
     var huntName: String = "",
     var location: String = "",
@@ -16,7 +19,7 @@ data class Hunt (
     var id: String = "",
     var creatorUserId: String = "",
     var creatorUsername: String = ""
-)
+) : Parcelable
 
 fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
@@ -78,8 +81,9 @@ fun getPublishedHuntById(huntId: String, onSuccess: (Hunt) -> Unit, onFailure: (
         .document(huntId)
         .get()
         .addOnSuccessListener { result ->
-            val hunt = result.toObject(Hunt::class.java)
+            var hunt = result.toObject(Hunt::class.java)
             if (hunt != null) {
+                hunt.id = result.id
                 onSuccess(hunt)
             }
         }
@@ -100,15 +104,37 @@ fun publishHunt(hunt: Hunt, onSuccess: () -> Unit, onFailure: (Exception) -> Uni
                 val userId = user.uid
                 hunt.creatorUserId = userId
                 hunt.creatorUsername = user.displayName.toString()
-                // Nouvelle publication
-                db.collection("publishedHunts")
-                    .add(hunt)
-                    .addOnSuccessListener {
-                        onSuccess()
-                    }
-                    .addOnFailureListener { exception ->
-                        onFailure(exception)
-                    }
+
+                getIndicesFromHunt(hunt.id, { indices ->
+                    var batch = db.batch()
+
+                    // Nouvelle publication
+                    db.collection("publishedHunts")
+                        .add(hunt)
+                        .addOnSuccessListener { docHuntRef ->
+                            indices.forEach { doc ->
+                                var docRef = db.collection("publishedHunts")
+                                    .document(docHuntRef.id)
+                                    .collection("indices")
+                                    .document()
+                                batch.set(docRef, doc)
+                            }
+                            batch.commit()
+                                .addOnSuccessListener {
+                                    onSuccess()
+                                }
+                                .addOnFailureListener { exception ->
+                                    onFailure(exception)
+                                }
+                        }
+                        .addOnFailureListener { exception ->
+                            onFailure(exception)
+                        }
+                }, {exception ->
+                    onFailure(exception)
+                })
+
+
             }
         },
         onFailure = { exception ->

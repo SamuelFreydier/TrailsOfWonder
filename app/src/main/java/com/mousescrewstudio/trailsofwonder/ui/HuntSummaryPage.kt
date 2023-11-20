@@ -69,7 +69,7 @@ import java.util.Locale
 @Composable
 fun HuntSummaryPage(
     huntId: String,
-    onHuntStart: () -> Unit,
+    onHuntStart: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
     var hunt by remember { mutableStateOf<Hunt?>(null) }
@@ -151,7 +151,7 @@ fun HuntSummaryPage(
                     onClick = {
                         // Naviguer vers la page de début de la chasse
                         //navController.navigate("StartHuntPage/${huntId}")
-                        onHuntStart() // Appeler la fonction de démarrage de la chasse
+                        hunt?.let { onHuntStart(it.id) } // Appeler la fonction de démarrage de la chasse
                     },
                     modifier = Modifier
                         .fillMaxWidth()

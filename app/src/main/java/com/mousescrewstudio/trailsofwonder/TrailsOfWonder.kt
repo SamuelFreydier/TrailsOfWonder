@@ -51,7 +51,7 @@ import com.mousescrewstudio.trailsofwonder.Destinations.VERIFY_EMAIL_CODE_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.WELCOME_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.CHAT_PAGE
 import com.mousescrewstudio.trailsofwonder.Destinations.TEAM_CREATION_PAGE
-import com.mousescrewstudio.trailsofwonder.Destinations.HUNT_ONGOING
+import com.mousescrewstudio.trailsofwonder.Destinations.ONGOING_HUNT_ROUTE
 import com.mousescrewstudio.trailsofwonder.Destinations.VICTORY_PAGE
 import com.mousescrewstudio.trailsofwonder.ui.ForgotPasswordPage
 import com.mousescrewstudio.trailsofwonder.ui.WelcomePage
@@ -68,8 +68,8 @@ import com.mousescrewstudio.trailsofwonder.ui.SettingsPage
 import com.mousescrewstudio.trailsofwonder.ui.SignupPage
 import com.mousescrewstudio.trailsofwonder.ui.VerifyEmailCodePage
 import com.mousescrewstudio.trailsofwonder.ui.ChatPage
+import com.mousescrewstudio.trailsofwonder.ui.OngoingHuntPage
 import com.mousescrewstudio.trailsofwonder.ui.TeamCreationPage
-import com.mousescrewstudio.trailsofwonder.ui.HuntOngoing
 import com.mousescrewstudio.trailsofwonder.ui.VictoryPage
 
 object Destinations {
@@ -89,7 +89,7 @@ object Destinations {
     const val NEW_INDICE_CONFIG_ROUTE = "new-indice-config"
     const val CHAT_PAGE = "chat-page"
     const val TEAM_CREATION_PAGE = "team-creation"
-    const val HUNT_ONGOING = "hunt-ongoing"
+    const val ONGOING_HUNT_ROUTE = "hunt-ongoing"
     const val VICTORY_PAGE = "victory-page"
 }
 
@@ -132,9 +132,9 @@ fun TrailsOfWonderApp(
         "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{latitude}/{longitude}" -> { bottomBarState.value = false }
         "$NEW_INDICE_CONFIG_ROUTE/{huntId}/{indiceId}" -> {bottomBarState.value = false}
         CHAT_PAGE -> { bottomBarState.value = true }
-        TEAM_CREATION_PAGE -> { bottomBarState.value = false }
-        HUNT_ONGOING -> { bottomBarState.value = true }
-        VICTORY_PAGE -> { bottomBarState.value = true }
+        "$TEAM_CREATION_PAGE/{huntId}" -> { bottomBarState.value = false }
+        "$ONGOING_HUNT_ROUTE/{ongoingHuntId}" -> { bottomBarState.value = false }
+        VICTORY_PAGE -> { bottomBarState.value = false }
     }
 
     // Barre de navigation du bas
@@ -248,7 +248,9 @@ fun TrailsOfWonderApp(
                 val huntId = backStackEntry.arguments?.getString("huntId")
                 if(huntId != null) HuntSummaryPage(
                     huntId = huntId,
-                    onHuntStart = {navController.navigate(TEAM_CREATION_PAGE) },
+                    onHuntStart = { publishedHuntId ->
+                        navController.navigate("$TEAM_CREATION_PAGE/$publishedHuntId")
+                    },
                     onBackClick = {navController.popBackStack()}
 
                 /*val huntID = backStackEntry.arguments?.getString("huntID")
@@ -372,28 +374,41 @@ fun TrailsOfWonderApp(
                 if(receiverId != null) ChatPage(receiverId)
             }
 
-            composable(TEAM_CREATION_PAGE) { TeamCreationPage (
-                onStartClick = {},
-                onBackClick = {navController.popBackStack()}
-            ) }
-            /*composable(
-                "TeamCreation/{huntID}",
-                arguments = listOf(
-                    navArgument("huntID") {type = NavType.StringType })
-            ) { backStackEntry ->
-                val huntID = backStackEntry.arguments?.getString("huntID")
-                if(huntID != null) TeamCreation(navController, huntID)
-            }*/
             composable(
-                "HuntOngoing/{ID}",
+                route = "$TEAM_CREATION_PAGE/{huntId}",
                 arguments = listOf(
-                    navArgument("ID") {type = NavType.StringType })
+                    navArgument("huntId") { type = NavType.StringType }
+                )
             ) { backStackEntry ->
-                val ID = backStackEntry.arguments?.getString("ID")
-                if(ID != null) HuntOngoing(ID,
-                    /*onClickVictory = { huntId ->
-                        navController.navigate("$VICTORY_PAGE/$huntId")})*/
-                    navController = navController)
+                val arguments = backStackEntry?.arguments
+                val huntId = arguments?.getString("huntId")
+                if (huntId != null) {
+                    TeamCreationPage (
+                        huntId = huntId,
+                        onStartClick = { ongoingHuntId -> navController.navigate("$ONGOING_HUNT_ROUTE/$ongoingHuntId")},
+                        onBackClick = {navController.popBackStack()}
+                    )
+                }
+            }
+
+            composable(
+                route = "$ONGOING_HUNT_ROUTE/{ongoingHuntId}",
+                arguments = listOf(
+                    navArgument("ongoingHuntId") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val arguments = backStackEntry?.arguments
+                val ongoingHuntId = arguments?.getString("ongoingHuntId")
+                println("arguments caught")
+
+                if (ongoingHuntId != null) {
+                    println("ongoingHunt not null")
+
+                    OngoingHuntPage(
+                        huntId = ongoingHuntId,
+                        onBackClick = {navController.navigate(PROFILE_ROUTE)}
+                    )
+                }
             }
 
             composable(
