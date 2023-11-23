@@ -229,7 +229,11 @@ fun TrailsOfWonderApp(
                         onSaveClick = { navController.navigate(PROFILE_ROUTE) },
                         onIndicesClick = { huntId ->
                             navController.navigate("$INDICES_RECAP_ROUTE/$huntId") },
-                        onBackClick = {navController.navigate(PROFILE_ROUTE)}
+                        onBackClick = {navController.navigate(PROFILE_ROUTE) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        } }
                     )
                 }
 
@@ -386,7 +390,7 @@ fun TrailsOfWonderApp(
                     TeamCreationPage (
                         huntId = huntId,
                         onStartClick = { ongoingHuntId -> navController.navigate("$ONGOING_HUNT_ROUTE/$ongoingHuntId")},
-                        onBackClick = {navController.popBackStack()}
+                        onBackClick = {navController.popBackStack() }
                     )
                 }
             }
@@ -406,7 +410,11 @@ fun TrailsOfWonderApp(
 
                     OngoingHuntPage(
                         huntId = ongoingHuntId,
-                        onBackClick = {navController.navigate(PROFILE_ROUTE)}
+                        onBackClick = {navController.navigate(PROFILE_ROUTE) {
+                            popUpTo(navController.graph.id) {
+                                inclusive = true
+                            }
+                        }}
                     )
                 }
             }

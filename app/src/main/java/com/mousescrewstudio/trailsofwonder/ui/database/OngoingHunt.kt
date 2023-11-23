@@ -11,7 +11,7 @@ data class OngoingHunt(
     var huntId: String = "",
     var teamMembers: List<String> = emptyList(),
     var indices: List<IndiceWithValidation> = emptyList(),
-    var currentIndiceOrder: Int = 0
+    var currentIndiceOrder: Int = 1
 ) : Parcelable
 
 @Parcelize
@@ -74,6 +74,9 @@ fun createOngoingHunt(
             huntId = huntId,
             onSuccess = { huntWithIndices ->
                 println("huntdetailsgotten")
+
+                // Le premier indice est déjà validé, il permet de commencer la chasse avec les premières informations
+                huntWithIndices.indices.first().isValidated = true
 
                 val ongoingHunt = OngoingHunt(
                     huntId = huntWithIndices.hunt.id,
