@@ -36,6 +36,7 @@ import com.mousescrewstudio.trailsofwonder.ui.database.Message
 import com.mousescrewstudio.trailsofwonder.ui.database.sendMessage
 
 
+// Page de discussion entre deux utilisateurs
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun ChatPage(

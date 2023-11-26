@@ -35,6 +35,7 @@ val dummyTreasureHunts = List(3) {
     TreasureHunt("Treasure Hunt $it")
 }
 
+// Page de profil
 @Composable
 fun ProfilePage(
     username: String,
@@ -101,6 +102,8 @@ fun ProfilePage(
         }
     }
 }
+
+// Représente une chasse créée par l'utilisateur
 @Composable
 fun ProfileHuntItem(hunt: Hunt, onEditClick: (String) -> Unit) {
     Column(

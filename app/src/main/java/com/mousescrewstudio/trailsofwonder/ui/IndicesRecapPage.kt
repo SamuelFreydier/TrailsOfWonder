@@ -49,6 +49,7 @@ import org.burnoutcrew.reorderable.reorderable
 @Parcelize
 data class IndexItem(val title: String) : Parcelable
 
+// Page récapitulative des indices de la chasse créée
 @Composable
 fun IndicesRecapPage(
     huntId: String,
@@ -82,6 +83,7 @@ fun IndicesRecapPage(
     }
 }
 
+// LazyColumn avec possibilité de changer les éléments de place en les glissant (appui long pour que ça marche)
 @Composable
 fun VerticalReorderList(
     huntId: String,

@@ -16,6 +16,7 @@ import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+// Page de victoire après complétion totale d'une chasse
 @Composable
 fun VictoryPage(
     retourMenu: () -> Unit,

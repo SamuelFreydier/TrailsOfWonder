@@ -1,7 +1,6 @@
 package com.mousescrewstudio.trailsofwonder.ui
 
 import android.content.Context
-import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardActions
@@ -30,9 +29,9 @@ import androidx.compose.ui.text.input.VisualTransformation
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.mousescrewstudio.trailsofwonder.MainActivity
-import com.mousescrewstudio.trailsofwonder.ui.components.showErrorDialog
+import com.mousescrewstudio.trailsofwonder.utils.showErrorDialog
 
+// Page de connexion au compte
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginPage(

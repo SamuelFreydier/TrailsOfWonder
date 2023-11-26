@@ -72,6 +72,7 @@ import com.mousescrewstudio.trailsofwonder.ui.OngoingHuntPage
 import com.mousescrewstudio.trailsofwonder.ui.TeamCreationPage
 import com.mousescrewstudio.trailsofwonder.ui.VictoryPage
 
+// Ensemble des routes pour la navigation / Accès aux différentes pages
 object Destinations {
     const val WELCOME_ROUTE = "welcome"
     const val LOGIN_ROUTE = "login"
@@ -93,6 +94,7 @@ object Destinations {
     const val VICTORY_PAGE = "victory-page"
 }
 
+// Classe permettant d'associer une route à un nom et à une icône
 sealed class Screen(val route: String, @StringRes val resourceId: Int, val imageVector: ImageVector) {
     object Welcome: Screen(WELCOME_ROUTE, R.string.welcome, Icons.Filled.Home)
     object HuntCreation: Screen(HUNT_CREATION_ROUTE, R.string.create, Icons.Filled.AddLocationAlt)
@@ -101,6 +103,7 @@ sealed class Screen(val route: String, @StringRes val resourceId: Int, val image
     object Login: Screen(LOGIN_ROUTE, R.string.login, Icons.Filled.Login)
 }
 
+// Classe de navigation principale de l'application
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -116,6 +119,8 @@ fun TrailsOfWonderApp(
 ) {
     val bottomBarState = rememberSaveable { (mutableStateOf(true)) }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
+
+    // Pour chaque route, est-ce que la bottom bar doit s'afficher
     when (navBackStackEntry?.destination?.route) {
         WELCOME_ROUTE -> { bottomBarState.value = true }
         LOGIN_ROUTE -> { bottomBarState.value = false }

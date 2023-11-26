@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 
+// PAGE OBSOLETE => ANCIENNE PAGE D'ACCUEIL
 @Composable
 fun WelcomePage(
     onNavigateToHuntCreation: () -> Unit,

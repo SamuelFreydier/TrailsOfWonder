@@ -30,8 +30,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import com.mousescrewstudio.trailsofwonder.ui.components.showErrorDialog
+import com.mousescrewstudio.trailsofwonder.utils.showErrorDialog
 
+// Page d'oubli de mot de passe
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordPage(
@@ -110,6 +111,7 @@ fun ForgotPasswordPage(
     }
 }
 
+// Fonction permettant d'envoyer l'email de réinitialisation de mdp
 fun sendPasswordResetEmail(
     email: String,
     context: Context,

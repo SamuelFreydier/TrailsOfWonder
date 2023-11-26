@@ -7,6 +7,7 @@ import kotlinx.parcelize.Parcelize
 
 val db = FirebaseFirestore.getInstance()
 
+// Classe représentant une chasse au trésor créée/publiée
 @Parcelize
 data class Hunt (
     var huntName: String = "",
@@ -21,6 +22,7 @@ data class Hunt (
     var creatorUsername: String = ""
 ) : Parcelable
 
+// Création d'une chasse au trésor
 fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
@@ -173,6 +175,7 @@ fun removePublishedHunt(huntId: String, onSuccess: () -> Unit, onFailure: (Excep
         }
 }
 
+// Mise à jour d'une chasse
 fun updateHunt(huntId: String, hunt: Hunt, onSuccess: (String) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
@@ -195,6 +198,7 @@ fun updateHunt(huntId: String, hunt: Hunt, onSuccess: (String) -> Unit) {
     }
 }
 
+// Récupération des chasses créées par l'utilisateur courant
 fun getUserHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
 
@@ -268,24 +272,4 @@ fun deleteHunt(huntId: String, onSuccess: () -> Unit, onFailure: (Exception) -> 
                 onFailure(exception)
             }
     }
-}
-
-fun getOngoingHunt(huntID : String, onSuccess: (List<Hunt>) -> Unit) {
-    val db = FirebaseFirestore.getInstance()
-    db.collection("publishedHunts")
-        .whereEqualTo("huntName", huntID)
-        .addSnapshotListener { snapshot, e ->
-            if (e != null) {
-                println("Erreur")
-                return@addSnapshotListener
-            }
-
-            var listHunt = mutableListOf<Hunt>()
-            if (snapshot != null && !snapshot.isEmpty) {
-                val m = snapshot.toObjects(Hunt::class.java)
-                listHunt = m
-            }
-
-            onSuccess(listHunt)
-        }
 }

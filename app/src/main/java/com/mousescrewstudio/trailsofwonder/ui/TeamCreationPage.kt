@@ -43,6 +43,7 @@ import androidx.navigation.NavController
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mousescrewstudio.trailsofwonder.ui.database.createOngoingHunt
 
+// Page de création d'équipe lors de la participation à une chasse
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamCreationPage(

@@ -3,6 +3,7 @@ package com.mousescrewstudio.trailsofwonder.ui.database
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 
+// Classe représentant un commentaire sur une chasse publiée
 data class Comment(
     var commentId: String = "",
     var userId: String = "",

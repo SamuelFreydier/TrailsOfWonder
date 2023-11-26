@@ -30,6 +30,7 @@ import com.mousescrewstudio.trailsofwonder.ui.database.getIndiceFromId
 import com.mousescrewstudio.trailsofwonder.ui.database.saveIndice
 import com.mousescrewstudio.trailsofwonder.ui.database.updateIndice
 
+// Page de configuration d'un indice nouvellement créé / édition d'un indice
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewIndiceConfigPage(

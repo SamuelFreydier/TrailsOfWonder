@@ -53,6 +53,7 @@ import com.mousescrewstudio.trailsofwonder.ui.database.saveHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.updateHunt
 import java.util.UUID
 
+// Page de création et d'édition de chasse au trésor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HuntCreationPage(
@@ -64,8 +65,7 @@ fun HuntCreationPage(
     onIndicesClick: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
-
-
+    // Si édition => on crée une top bar avec bouton de retour
     if(!editMode) {
         MainHuntCreationContent(
             huntId = huntId,
@@ -103,6 +103,8 @@ fun HuntCreationPage(
 
 }
 
+
+// Contenu commun à cette page (entre création et édition)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainHuntCreationContent(
@@ -127,6 +129,7 @@ fun MainHuntCreationContent(
     var tagText by remember { mutableStateOf(TextFieldValue()) }
     var tagsWithIds by remember { mutableStateOf(listOf<TagItemData>()) }
 
+    // Si édition => On récupère la chasse avec son ID car elle est déjà créée
     if (editMode) {
         LaunchedEffect(huntId) {
             // Chargez l'indice à partir de Firestore
@@ -150,6 +153,7 @@ fun MainHuntCreationContent(
         }
     }
 
+    // Fonction de création de nouvelle chasse
     fun CreateHunt(onSuccess: (String) -> Unit) {
         // Récupération des données de la chasse dans une seule structure
         val huntData = Hunt(
@@ -165,6 +169,7 @@ fun MainHuntCreationContent(
         saveHunt(huntData, onSuccess)
     }
 
+    // Fonction de mise à jour de la chasse actuelle
     fun UpdateHunt(onSuccess: (String) -> Unit) {
         // Récupération des données de la chasse dans une seule structure
         val huntData = Hunt(
@@ -397,6 +402,7 @@ fun MainHuntCreationContent(
     }
 }
 
+// Liste des tags dans une ligne
 @Composable
 fun TagsList(tags: List<TagItemData>, onTagRemoveClick: (String) -> Unit) {
     LazyRow(
@@ -411,6 +417,7 @@ fun TagsList(tags: List<TagItemData>, onTagRemoveClick: (String) -> Unit) {
     }
 }
 
+// Représente 1 Tag de la TagsList
 @Composable
 fun TagItem(tag: TagItemData, onRemoveClick: (String) -> Unit) {
     Row(
@@ -426,6 +433,7 @@ fun TagItem(tag: TagItemData, onRemoveClick: (String) -> Unit) {
 
 data class TagItemData(val id: String, val tag: String)
 
+// Composant permettant de configurer le temps estimé de la chasse (heures et minutes)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DurationPicker(

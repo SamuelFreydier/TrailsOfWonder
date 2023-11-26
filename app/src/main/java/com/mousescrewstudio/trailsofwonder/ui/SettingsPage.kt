@@ -24,6 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+// Page des paramètres
 @Composable
 fun SettingsPage(
     onBackClick: () -> Unit,

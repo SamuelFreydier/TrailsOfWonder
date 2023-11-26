@@ -5,6 +5,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.parcelize.Parcelize
 
+// Classe représentant un indice d'une chasse créée/publiée
 @Parcelize
 data class Indice(
     var id: String = "",

@@ -1,4 +1,4 @@
-package com.mousescrewstudio.trailsofwonder.ui.components
+package com.mousescrewstudio.trailsofwonder.utils
 
 import android.content.Context
 import android.widget.Toast

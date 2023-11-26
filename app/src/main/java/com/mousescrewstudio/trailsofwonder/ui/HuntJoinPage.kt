@@ -37,7 +37,7 @@ import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getPublishedHunts
 import java.util.UUID
 
-
+// Page de participation à une chasse (également page d'accueil)
 @Composable
 fun HuntJoinPage(
     onHuntClicked: (String) -> Unit,
@@ -171,6 +171,7 @@ fun HuntJoinPage(
 }
 
 
+// Composant de barre de recherche
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun SearchBar(searchQuery: String,
@@ -204,6 +205,7 @@ fun SearchBar(searchQuery: String,
     }
 }
 
+// Récupération de la difficulté en fonction d'un entier (0 à 2)
 @Composable
 fun getDifficultyString(difficulty: Int): String {
     return when (difficulty) {
@@ -214,6 +216,7 @@ fun getDifficultyString(difficulty: Int): String {
     }
 }
 
+// Fonction de filtrage des chasses proposées en fonction de la recherche et des tags choisis
 fun filterHunt(
     query: String,
     tagsWithIds: List<TagItemData>,
@@ -235,7 +238,7 @@ fun filterHunt(
     }
 }
 
-
+// Chasses factices pour debug
 fun generateHunts(): List<Hunt> {
     var x = mutableListOf<Hunt>()
     x = listOf(
@@ -250,12 +253,4 @@ fun generateHunts(): List<Hunt> {
 
     return x
 
-}
-
-
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewHunt() {
-    //HuntJoinPage()
 }

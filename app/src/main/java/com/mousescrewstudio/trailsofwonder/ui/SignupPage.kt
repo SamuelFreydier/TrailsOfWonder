@@ -44,8 +44,9 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
-import com.mousescrewstudio.trailsofwonder.ui.components.showErrorDialog
+import com.mousescrewstudio.trailsofwonder.utils.showErrorDialog
 
+// Page d'inscription (création de compte)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupPage(
@@ -180,6 +181,7 @@ fun SignupPage(
     }
 }
 
+// Fonction de création de compte avec Firebase Auth
 private fun createAccount(
     username: String,
     email: String,
@@ -225,7 +227,7 @@ private fun createAccount(
         }
 }
 
-// Fonction pour ajouter l'username à la liste dans Firebase
+// Fonction pour ajouter le nom d'utilisateur aux données de l'utilisateur
 fun addUsername(uid: String) {
     val acces = FirebaseFirestore.getInstance().collection("username").document("UsernameList")
     val newData = hashMapOf( uid to uid )

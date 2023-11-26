@@ -2,6 +2,7 @@ package com.mousescrewstudio.trailsofwonder.ui.database
 
 import com.google.firebase.firestore.FirebaseFirestore
 
+// Classe représentant un message entre deux utilisateurs
 data class Message(
     val sender: String,
     val receiver: String,
@@ -9,12 +10,14 @@ data class Message(
 ) {
     constructor() : this("", "", "")
 }
+
+// Envoi d'un message
 fun sendMessage(message: Message) {
     val firestore = FirebaseFirestore.getInstance()
     firestore.collection("messages").add(message)
 }
 
-
+// Récupération des messages envoyés par un utilisateur
 fun GetAllMessages(senderId: String, onSucess: (MutableList<Message>)/*(ArrayList<String>)*/ -> Unit) {
     val db = FirebaseFirestore.getInstance()
     db.collection("messages")

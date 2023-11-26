@@ -63,7 +63,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 import java.util.Locale
 
-
+// Page descriptive d'une chasse publiée
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -203,6 +203,7 @@ fun HuntSummaryPage(
     }
 }
 
+// Représente un commentaire
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun CommentItem(comment: Comment) {
@@ -231,6 +232,7 @@ fun formatTimestamp(timestamp: Timestamp): String {
     return localDateTime.format(formatter)
 }
 
+// Fonction de formatage de text pour afficher des éléments en gras
 @Composable
 fun BoldTextWithColon(fieldName: String, value: String, color: Color = Color.Black) {
     Text(

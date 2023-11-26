@@ -6,6 +6,7 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.parcelize.Parcelize
 import kotlin.math.abs
 
+// Classe représentant une chasse en cours (participation)
 @Parcelize
 data class OngoingHunt(
     var huntId: String = "",
@@ -14,12 +15,15 @@ data class OngoingHunt(
     var currentIndiceOrder: Int = 1
 ) : Parcelable
 
+// Classe représentant un indice et s'il a été validé ou non
 @Parcelize
 data class IndiceWithValidation(
     var indice: Indice = Indice(),
     var isValidated: Boolean = false
 ) : Parcelable
 
+
+// Classe représentant une chasse et la liste de ses indices (et s'ils ont été validés ou non)
 @Parcelize
 data class HuntWithIndices(
     var hunt: Hunt = Hunt(),
@@ -59,6 +63,7 @@ fun getHuntDetails(
     }
 }
 
+// Fait participer l'utilisateur à une chasse
 fun createOngoingHunt(
     huntId: String,
     teamMembers: List<String>,
@@ -123,6 +128,7 @@ fun createOngoingHunt(
     }
 }
 
+// Vérifie si l'utilisateur est au bon endroit vis à vis du prochain indice de sa chasse, et si oui, débloque l'indice
 fun checkAndUnlockIndice(huntId: String, currentPos: LatLng, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit) {
     var user = FirebaseAuth.getInstance().currentUser
     if(user != null) {
@@ -167,7 +173,7 @@ fun checkAndUnlockIndice(huntId: String, currentPos: LatLng, onSuccess: (Boolean
     }
 }
 
-// Récupère les indices actuels d'une ongoingHunt
+// Récupère le prochain indice à débloquer d'une chasse en cours
 fun getIndiceFromOrderFromOngoingHunt(
     ongoingHuntId: String,
     indiceOrder: Int,
@@ -196,7 +202,7 @@ fun getIndiceFromOrderFromOngoingHunt(
     }
 }
 
-// Récupère les indices actuels d'une ongoingHunt
+// Récupère les indices débloqués d'une chasse en cours
 fun getIndicesFromOngoingHunt(
     ongoingHuntId: String,
     onSuccess: (List<IndiceWithValidation>) -> Unit,

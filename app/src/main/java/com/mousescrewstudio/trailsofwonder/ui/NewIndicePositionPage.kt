@@ -41,6 +41,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.mousescrewstudio.trailsofwonder.MainActivity
 
+// Page de positionnement d'un nouvel indice
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun NewIndicePositionPage(
@@ -83,6 +84,7 @@ fun NewIndicePositionPage(
         Manifest.permission.ACCESS_FINE_LOCATION
     )
 
+    // Si autorisé => Récupération de la localisation / Sinon => Demande de permission
     if (permissions.all {
             ContextCompat.checkSelfPermission(
                 context,

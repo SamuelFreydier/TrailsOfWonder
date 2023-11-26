@@ -53,8 +53,8 @@ import com.mousescrewstudio.trailsofwonder.MainActivity
 import com.mousescrewstudio.trailsofwonder.ui.database.IndiceWithValidation
 import com.mousescrewstudio.trailsofwonder.ui.database.checkAndUnlockIndice
 import com.mousescrewstudio.trailsofwonder.ui.database.getIndicesFromOngoingHunt
-import com.mousescrewstudio.trailsofwonder.ui.database.getOngoingHunt
 
+// Page des indices actuellement trouvés pour la chasse en cours
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun OngoingHuntPage(
@@ -173,8 +173,6 @@ fun OngoingHuntPage(
                                   println("Erreur lors de la vérification de la position : $exception")
                               }
                           )
-                    // TODO: Ajouter la logique pour valider la position et obtenir le prochain indice
-                    // Ceci dépend de la logique spécifique du jeu
                 },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -190,6 +188,7 @@ fun OngoingHuntPage(
     }
 }
 
+// Liste des indices
 @Composable
 fun OngoingHuntIndicesList(indices: List<IndiceWithValidation>) {
     LazyColumn {
@@ -199,6 +198,7 @@ fun OngoingHuntIndicesList(indices: List<IndiceWithValidation>) {
     }
 }
 
+// Carte représentant un indice trouvé, présent dans la liste ci-dessus
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OngoingHuntIndiceCard(indice: IndiceWithValidation) {
