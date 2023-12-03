@@ -16,7 +16,10 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Chip
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -24,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,16 +46,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 import com.mousescrewstudio.trailsofwonder.ui.database.deleteHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getHuntFromId
+import com.mousescrewstudio.trailsofwonder.ui.database.predefinedTags
 import com.mousescrewstudio.trailsofwonder.ui.database.publishHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.saveHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.updateHunt
 import java.util.UUID
+
+data class TagItemData(val id: String, val tag: String, var isSelected: Boolean)
 
 // Page de création et d'édition de chasse au trésor
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,7 +134,6 @@ fun MainHuntCreationContent(
     var durationHours by remember { mutableIntStateOf(hunt.durationHours ?: 0) }
     var durationMinutes by remember { mutableIntStateOf(hunt.durationMinutes ?: 0) }
 
-    var tagText by remember { mutableStateOf(TextFieldValue()) }
     var tagsWithIds by remember { mutableStateOf(listOf<TagItemData>()) }
 
     // Si édition => On récupère la chasse avec son ID car elle est déjà créée
@@ -141,8 +148,13 @@ fun MainHuntCreationContent(
                     difficultyIndex = hunt.difficulty
                     durationHours = hunt.durationHours
                     durationMinutes = hunt.durationMinutes
-                    hunt.tags.forEachIndexed { _, s ->
-                        tagsWithIds = tagsWithIds + TagItemData(UUID.randomUUID().toString(), s)
+                    // Initialisation des tags avec isSelected basé sur la correspondance avec les prédéfinis
+                    tagsWithIds = predefinedTags.map { predefinedTag ->
+                        TagItemData(
+                            id = UUID.randomUUID().toString(),
+                            tag = predefinedTag,
+                            isSelected = loadedHunt.tags.contains(predefinedTag)
+                        )
                     }
 
                     println("Chasse chargée avec succès")
@@ -151,10 +163,27 @@ fun MainHuntCreationContent(
                 })
             }
         }
+    } else {
+        // Tags non sélectionnés par défaut
+        LaunchedEffect(predefinedTags) {
+            tagsWithIds = predefinedTags.map { predefinedTag ->
+                TagItemData(
+                    id = UUID.randomUUID().toString(),
+                    tag = predefinedTag,
+                    isSelected = false
+                )
+            }
+        }
     }
 
     // Fonction de création de nouvelle chasse
     fun CreateHunt(onSuccess: (String) -> Unit) {
+        var selectedTags: List<TagItemData> = listOf()
+        tagsWithIds.forEach { tag ->
+            if(tag.isSelected) {
+                selectedTags = selectedTags + tag
+            }
+        }
         // Récupération des données de la chasse dans une seule structure
         val huntData = Hunt(
             huntName = huntName,
@@ -162,7 +191,7 @@ fun MainHuntCreationContent(
             difficulty = difficultyIndex,
             durationHours = durationHours,
             durationMinutes = durationMinutes,
-            tags = tagsWithIds.map { it.tag }
+            tags = selectedTags.map {it.tag}
         )
 
         // Sauvegarde de la chasse dans Firestore
@@ -171,6 +200,12 @@ fun MainHuntCreationContent(
 
     // Fonction de mise à jour de la chasse actuelle
     fun UpdateHunt(onSuccess: (String) -> Unit) {
+        var selectedTags: List<TagItemData> = listOf()
+        tagsWithIds.forEach { tag ->
+            if(tag.isSelected) {
+                selectedTags = selectedTags + tag
+            }
+        }
         // Récupération des données de la chasse dans une seule structure
         val huntData = Hunt(
             huntName = huntName,
@@ -178,7 +213,7 @@ fun MainHuntCreationContent(
             difficulty = difficultyIndex,
             durationHours = durationHours,
             durationMinutes = durationMinutes,
-            tags = tagsWithIds.map { it.tag }
+            tags = selectedTags.map { it.tag }
         )
 
         // Sauvegarde de la chasse dans Firestore
@@ -277,32 +312,18 @@ fun MainHuntCreationContent(
             }
 
             // Tags
-            TextField(
-                value = tagText,
-                onValueChange = { tagText = it },
-                label = { Text("Tag") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp)
-            )
-            Button(
-                onClick = {
-                    if (tagText.text.isNotEmpty()) {
-                        tagsWithIds = tagsWithIds + TagItemData(UUID.randomUUID().toString(), tagText.text.toString())
-                        tagText = TextFieldValue()
+            TagsList(
+                tags = tagsWithIds,
+                onTagClick = { clickedTag ->
+                    tagsWithIds = tagsWithIds.map { tag ->
+                        if(tag == clickedTag) {
+                            tag.copy(isSelected = !tag.isSelected)
+                        } else {
+                            tag
+                        }
                     }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp)
-            ) {
-                Text("Ajouter Tag")
-            }
-
-
-            TagsList(tags = tagsWithIds, onTagRemoveClick = { tagId ->
-                tagsWithIds = tagsWithIds.filterNot { it.id == tagId }
-            })
+                }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -365,6 +386,12 @@ fun MainHuntCreationContent(
 
                     Button(
                         onClick = {
+                            var selectedTags: List<TagItemData> = listOf()
+                            tagsWithIds.forEach { tag ->
+                                if(tag.isSelected) {
+                                    selectedTags = selectedTags + tag
+                                }
+                            }
                             // Récupération des données de la chasse dans une seule structure
                             val huntData = huntId?.let {
                                 Hunt(
@@ -374,7 +401,7 @@ fun MainHuntCreationContent(
                                     difficulty = difficultyIndex,
                                     durationHours = durationHours,
                                     durationMinutes = durationMinutes,
-                                    tags = tagsWithIds.map { it.tag }
+                                    tags = selectedTags.map { it.tag }
                                 )
                             }
                             if (huntData != null) {
@@ -404,34 +431,38 @@ fun MainHuntCreationContent(
 
 // Liste des tags dans une ligne
 @Composable
-fun TagsList(tags: List<TagItemData>, onTagRemoveClick: (String) -> Unit) {
+fun TagsList(
+    tags: List<TagItemData>,
+    onTagClick: (TagItemData) -> Unit
+) {
     LazyRow(
         contentPadding = PaddingValues(vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(tags) { tag ->
-            key(tag.id) {
-                TagItem(tag = tag, onRemoveClick = { onTagRemoveClick(it) })
-            }
+            Chip(
+                text = tag.tag,
+                isSelected = tag.isSelected,
+                onClick = { onTagClick(tag) }
+            )
         }
     }
 }
 
 // Représente 1 Tag de la TagsList
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Composable
-fun TagItem(tag: TagItemData, onRemoveClick: (String) -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Text(text = tag.tag, color = MaterialTheme.colorScheme.primary)
-        IconButton(onClick = { onRemoveClick(tag.id) }) {
-            Icon(imageVector = Icons.Default.Close, contentDescription = null)
-        }
-    }
+fun Chip(text: String, isSelected: Boolean, onClick: () -> Unit) {
+    FilterChip(
+        onClick = onClick,
+        label = {
+            Text(text = text)
+        },
+        modifier = Modifier
+            .padding(4.dp),
+        selected = isSelected
+    )
 }
-
-data class TagItemData(val id: String, val tag: String)
 
 // Composant permettant de configurer le temps estimé de la chasse (heures et minutes)
 @OptIn(ExperimentalMaterial3Api::class)

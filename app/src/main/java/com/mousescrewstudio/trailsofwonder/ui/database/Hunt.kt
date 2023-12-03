@@ -7,6 +7,9 @@ import kotlinx.parcelize.Parcelize
 
 val db = FirebaseFirestore.getInstance()
 
+// Liste des tags prédéfinis disponibles (création ET recherche)
+val predefinedTags = listOf("Forêt", "Ville", "Montagne", "Randonnée")
+
 // Classe représentant une chasse au trésor créée/publiée
 @Parcelize
 data class Hunt (

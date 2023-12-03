@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getPublishedHunts
+import com.mousescrewstudio.trailsofwonder.ui.database.predefinedTags
 import java.util.UUID
 
 // Page de participation à une chasse (également page d'accueil)
@@ -60,6 +61,15 @@ fun HuntJoinPage(
                 println("Erreur lors de la récupération des chasses : $exception")
             }
         )
+    }
+    LaunchedEffect(predefinedTags) {
+        tagsWithIds = predefinedTags.map { predefinedTag ->
+            TagItemData(
+                id = UUID.randomUUID().toString(),
+                tag = predefinedTag,
+                isSelected = false
+            )
+        }
     }
 
     val scrollState = rememberLazyListState()
@@ -96,42 +106,19 @@ fun HuntJoinPage(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp))
-            {
-                TextField(
-                    value = tagText,
-                    onValueChange = { tagText = it },
-                    label = { Text("Tag") },
-                    modifier = Modifier
-                        .weight(2f)
-                        .padding(bottom = 16.dp)
-                )
-                Button(
-                    onClick = {
-                        if (tagText.text.isNotEmpty()) {
-                            tagsWithIds = tagsWithIds + TagItemData(
-                                UUID.randomUUID().toString(),
-                                tagText.text
-                            )
-                            tagText = TextFieldValue()
-                            filteredPublishedHunts = filterHunt(query, tagsWithIds, publishedHunts) // On met à jour les tags + on relance la recherche
+            TagsList(
+                tags = tagsWithIds,
+                onTagClick = { clickedTag ->
+                    tagsWithIds = tagsWithIds.map { tag ->
+                        if(tag == clickedTag) {
+                            tag.copy(isSelected = !tag.isSelected)
+                        } else {
+                            tag
                         }
-                    },
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(56.dp)
-                ) {
-                    Text("Ajouter")
+                    }
+                    filteredPublishedHunts = filterHunt(query, tagsWithIds, publishedHunts)
                 }
-            }
-
-
-            TagsList(tags = tagsWithIds, onTagRemoveClick = { tagId ->
-                tagsWithIds = tagsWithIds.filterNot { it.id == tagId }
-                filteredPublishedHunts = filterHunt(query, tagsWithIds, publishedHunts)   // Si un tag est supprimé, on recharge la recherche aussi
-            })
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
         }
@@ -228,8 +215,10 @@ fun filterHunt(
     }
 
     val listTag = mutableListOf<String>()   // Liste des String des tags
-    tagsWithIds.forEach { tags ->
-        listTag.add(tags.tag)
+    tagsWithIds.forEach { tag ->
+        if(tag.isSelected) {
+            listTag.add(tag.tag)
+        }
     }
 
 
