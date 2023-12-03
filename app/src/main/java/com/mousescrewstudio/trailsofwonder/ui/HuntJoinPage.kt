@@ -30,6 +30,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
@@ -211,7 +212,7 @@ fun filterHunt(
 ) : List<Hunt> {
 
     val res = publishedHunts.filter {
-        it.huntName.contains(query, ignoreCase = true) //|| it.tags.contains(tagsWithIds)
+        it.huntName.uppercase().contains(query.uppercase(), ignoreCase = true) //|| it.tags.contains(tagsWithIds)
     }
 
     val listTag = mutableListOf<String>()   // Liste des String des tags
