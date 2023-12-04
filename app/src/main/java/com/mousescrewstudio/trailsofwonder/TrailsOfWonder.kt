@@ -274,6 +274,9 @@ fun TrailsOfWonderApp(
                     onSettingsClick = { navController.navigate(SETTINGS_ROUTE) },
                     onEditHuntClick = { huntId ->
                         navController.navigate("$HUNT_CREATION_ROUTE/$huntId")
+                    },
+                    onJoinOngoingHuntClick = { ongoingHuntId ->
+                        navController.navigate("$ONGOING_HUNT_ROUTE/$ongoingHuntId")
                     }
                 )
             }

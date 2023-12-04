@@ -9,7 +9,9 @@ import kotlin.math.abs
 // Classe représentant une chasse en cours (participation)
 @Parcelize
 data class OngoingHunt(
+    var id: String = "",
     var huntId: String = "",
+    var huntName: String = "",
     var teamMembers: List<String> = emptyList(),
     var indices: List<IndiceWithValidation> = emptyList(),
     var currentIndiceOrder: Int = 1
@@ -85,6 +87,7 @@ fun createOngoingHunt(
 
                 val ongoingHunt = OngoingHunt(
                     huntId = huntWithIndices.hunt.id,
+                    huntName = huntWithIndices.hunt.huntName,
                     teamMembers = teamMembers,
                     indices = huntWithIndices.indices
                 )
@@ -224,6 +227,32 @@ fun getIndicesFromOngoingHunt(
                     .sortedBy { it.indice.order }
                 println("updatedIndices $updatedIndices")
                 onSuccess(updatedIndices)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+}
+
+// Récupération des chasses non terminées auxquelles l'utilisateur participe
+fun getUserOngoingHunts(onSuccess: (List<OngoingHunt>) -> Unit, onFailure: (Exception) -> Unit) {
+    val user = FirebaseAuth.getInstance().currentUser
+
+    if (user != null) {
+        val userId = user.uid
+
+        // Récupère toutes les chasses de l'utilisateur
+        db.collection("hunts")
+            .document(userId)
+            .collection("ongoingHunts")
+            .orderBy("huntName")
+            .get()
+            .addOnSuccessListener { result ->
+                val hunts = result.toObjects(OngoingHunt::class.java)
+                val updatedHunts = hunts.map {
+                    it.copy(id = result.documents[hunts.indexOf(it)].id)
+                }
+                onSuccess(updatedHunts)
             }
             .addOnFailureListener { exception ->
                 onFailure(exception)
