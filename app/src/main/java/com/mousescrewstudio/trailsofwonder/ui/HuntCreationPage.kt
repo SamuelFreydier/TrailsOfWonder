@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -33,6 +34,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
@@ -136,6 +138,9 @@ fun MainHuntCreationContent(
 
     var tagsWithIds by remember { mutableStateOf(listOf<TagItemData>()) }
 
+    // Visibilité de la chasse
+    var isPublic by remember { mutableStateOf(hunt.isPublic) }
+
     // Si édition => On récupère la chasse avec son ID car elle est déjà créée
     if (editMode) {
         LaunchedEffect(huntId) {
@@ -156,6 +161,8 @@ fun MainHuntCreationContent(
                             isSelected = loadedHunt.tags.contains(predefinedTag)
                         )
                     }
+                    println("Hunt is public : ${hunt.isPublic}")
+                    isPublic = hunt.isPublic
 
                     println("Chasse chargée avec succès")
                 }, {exception ->
@@ -191,7 +198,8 @@ fun MainHuntCreationContent(
             difficulty = difficultyIndex,
             durationHours = durationHours,
             durationMinutes = durationMinutes,
-            tags = selectedTags.map {it.tag}
+            tags = selectedTags.map {it.tag},
+            isPublic = isPublic
         )
 
         // Sauvegarde de la chasse dans Firestore
@@ -207,19 +215,29 @@ fun MainHuntCreationContent(
             }
         }
         // Récupération des données de la chasse dans une seule structure
-        val huntData = Hunt(
-            huntName = huntName,
-            location = location,
-            difficulty = difficultyIndex,
-            durationHours = durationHours,
-            durationMinutes = durationMinutes,
-            tags = selectedTags.map { it.tag }
-        )
+        if(huntId != null) {
+            val huntData = Hunt(
+                id = huntId,
+                huntName = huntName,
+                location = location,
+                difficulty = difficultyIndex,
+                durationHours = durationHours,
+                durationMinutes = durationMinutes,
+                tags = selectedTags.map { it.tag },
+                isPublic = isPublic
+            )
 
-        // Sauvegarde de la chasse dans Firestore
-        if (huntId != null) {
-            updateHunt(huntId, huntData, onSuccess)
+            // Sauvegarde de la chasse dans Firestore
+            //updateHunt(huntId, huntData, onSuccess)
+            publishHunt(huntData, {
+                updateHunt(huntId, huntData) { str ->
+                    onPublishClick()
+                }
+            }) { exception ->
+                println("Erreur lors de la publication de la chasse ${huntData.id} : $exception")
+            }
         }
+
     }
 
     LazyColumn(
@@ -327,6 +345,28 @@ fun MainHuntCreationContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+            ) {
+                Text(text = "Visibilité")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Privé", modifier = Modifier.padding(end = 4.dp))
+                    Switch(
+                        checked = isPublic,
+                        onCheckedChange = { isChecked ->
+                            isPublic = isChecked
+                        }
+                    )
+                    Text(text = "Public", modifier = Modifier.padding(start = 4.dp))
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Indices button
             Button(
                 onClick = {
@@ -382,44 +422,6 @@ fun MainHuntCreationContent(
                             .padding(horizontal = 8.dp)
                     ) {
                         Text("Supprimer")
-                    }
-
-                    Button(
-                        onClick = {
-                            var selectedTags: List<TagItemData> = listOf()
-                            tagsWithIds.forEach { tag ->
-                                if(tag.isSelected) {
-                                    selectedTags = selectedTags + tag
-                                }
-                            }
-                            // Récupération des données de la chasse dans une seule structure
-                            val huntData = huntId?.let {
-                                Hunt(
-                                    id = it,
-                                    huntName = huntName,
-                                    location = location,
-                                    difficulty = difficultyIndex,
-                                    durationHours = durationHours,
-                                    durationMinutes = durationMinutes,
-                                    tags = selectedTags.map { it.tag }
-                                )
-                            }
-                            if (huntData != null) {
-                                publishHunt(huntData, {
-                                    updateHunt(huntId, huntData) { str ->
-                                        onPublishClick()
-                                    }
-                                }) { exception ->
-                                    println("Erreur lors de la publication de la chasse ${huntData.id} : $exception")
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(56.dp)
-                            .padding(start = 8.dp)
-                    ) {
-                        Text("Publier")
                     }
                 }
             }

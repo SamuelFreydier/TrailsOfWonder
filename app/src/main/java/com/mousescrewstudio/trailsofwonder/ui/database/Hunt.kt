@@ -22,7 +22,8 @@ data class Hunt (
     var comment: List<String> = emptyList(),
     var id: String = "",
     var creatorUserId: String = "",
-    var creatorUsername: String = ""
+    var creatorUsername: String = "",
+    var isPublic: Boolean = false
 ) : Parcelable
 
 // Création d'une chasse au trésor
@@ -67,6 +68,7 @@ fun saveHunt(hunt: Hunt, onSuccess: (String) -> Unit) {
 fun getPublishedHunts(onSuccess: (List<Hunt>) -> Unit, onFailure: (Exception) -> Unit) {
     // Récupère toutes les chasses de l'utilisateur
     db.collection("publishedHunts")
+        .whereEqualTo("public", true)
         .get()
         .addOnSuccessListener { result ->
             val hunts = result.toObjects(Hunt::class.java)
@@ -189,7 +191,7 @@ fun updateHunt(huntId: String, hunt: Hunt, onSuccess: (String) -> Unit) {
             .document(userId)
             .collection("userHunts")
             .document(huntId)
-            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes, "tags", hunt.tags, "creatorUserId", userId, "creatorUsername", user.displayName.toString())
+            .update("huntName", hunt.huntName, "location", hunt.location, "difficulty", hunt.difficulty, "durationHours", hunt.durationHours, "durationMinutes", hunt.durationMinutes, "tags", hunt.tags, "creatorUserId", userId, "creatorUsername", user.displayName.toString(), "public", hunt.isPublic)
             .addOnSuccessListener {
                 // Chasse mise à jour avec succès
                 onSuccess(huntId)
