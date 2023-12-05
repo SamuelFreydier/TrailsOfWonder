@@ -150,6 +150,8 @@ fun publishHunt(hunt: Hunt, onSuccess: () -> Unit, onFailure: (Exception) -> Uni
     )
 }
 
+
+
 // Suppression d'une chasse publiée
 fun removePublishedHunt(huntId: String, onSuccess: () -> Unit, onFailure: (Exception) -> Unit) {
     db.collection("publishedHunts")

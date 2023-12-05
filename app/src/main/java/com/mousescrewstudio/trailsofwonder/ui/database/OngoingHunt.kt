@@ -45,8 +45,10 @@ fun getHuntDetails(
             .get()
             .addOnSuccessListener { result ->
                 val hunt = result.toObject(Hunt::class.java)
-                if (hunt != null) {
-                    getIndicesFromHunt(
+                val userId = hunt?.creatorUserId
+                if (hunt != null && userId != null) {
+                    getIndicesFromHuntFromUser(
+                        userId = userId,
                         huntId = hunt.id,
                         onSuccess = { indices ->
                             hunt.id = result.id

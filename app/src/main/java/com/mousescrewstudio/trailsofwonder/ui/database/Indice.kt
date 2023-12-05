@@ -136,6 +136,33 @@ fun getIndicesFromHunt(huntId: String, onSuccess: (List<Indice>) -> Unit, onFail
     }
 }
 
+// Récupère tous les indices d'une chasse d'un utilisateur précis
+fun getIndicesFromHuntFromUser(userId: String, huntId: String, onSuccess: (List<Indice>) -> Unit, onFailure: (Exception) -> Unit) {
+    val user = FirebaseAuth.getInstance().currentUser
+
+    if (user != null) {
+        // Récupère toutes les chasses de l'utilisateur
+        db.collection("hunts")
+            .document(userId)
+            .collection("userHunts")
+            .document(huntId)
+            .collection("indices")
+            .orderBy("order")
+            .get()
+            .addOnSuccessListener { result ->
+                val indices = result.toObjects(Indice::class.java)
+                val updatedIndices = indices.map {
+                    it.copy(id = result.documents[indices.indexOf(it)].id)
+                }
+                onSuccess(updatedIndices)
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+}
+
+
 // Récupère un indice à partir de son ID et de la chasse
 fun getIndiceFromId(huntId: String, indiceId: String, onSuccess: (Indice) -> Unit, onFailure: (Exception) -> Unit) {
     val user = FirebaseAuth.getInstance().currentUser
