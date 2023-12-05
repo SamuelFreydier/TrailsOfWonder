@@ -210,7 +210,6 @@ fun TrailsOfWonderApp(
             composable(HUNT_CREATION_ROUTE) { HuntCreationPage(
                 editMode = false,
                 onDeleteClick = { navController.navigate(PROFILE_ROUTE)},
-                onPublishClick = { navController.navigate(PROFILE_ROUTE)},
                 onSaveClick = { navController.navigate(PROFILE_ROUTE) },
                 onIndicesClick = { huntId ->
                     navController.navigate("$INDICES_RECAP_ROUTE/$huntId") },
@@ -230,7 +229,6 @@ fun TrailsOfWonderApp(
                         huntId = huntId,
                         editMode = true,
                         onDeleteClick = { navController.navigate(PROFILE_ROUTE)},
-                        onPublishClick = { navController.navigate(PROFILE_ROUTE)},
                         onSaveClick = { navController.navigate(PROFILE_ROUTE) },
                         onIndicesClick = { huntId ->
                             navController.navigate("$INDICES_RECAP_ROUTE/$huntId") },

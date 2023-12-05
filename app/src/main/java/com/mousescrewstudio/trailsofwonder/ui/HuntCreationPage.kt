@@ -71,7 +71,6 @@ fun HuntCreationPage(
     editMode: Boolean,
     onSaveClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
-    onPublishClick: () -> Unit,
     onIndicesClick: (String) -> Unit,
     onBackClick: () -> Unit
 ) {
@@ -82,7 +81,6 @@ fun HuntCreationPage(
             editMode = editMode,
             onSaveClick = onSaveClick,
             onDeleteClick = onDeleteClick,
-            onPublishClick = onPublishClick,
             onIndicesClick = onIndicesClick,
             modifier = Modifier
         )
@@ -104,7 +102,6 @@ fun HuntCreationPage(
                 editMode = editMode,
                 onSaveClick = onSaveClick,
                 onDeleteClick = onDeleteClick,
-                onPublishClick = onPublishClick,
                 onIndicesClick = onIndicesClick,
                 modifier = Modifier.padding(innerPadding)
             )
@@ -122,7 +119,6 @@ fun MainHuntCreationContent(
     editMode: Boolean,
     onSaveClick: (String) -> Unit,
     onDeleteClick: () -> Unit,
-    onPublishClick: () -> Unit,
     onIndicesClick: (String) -> Unit,
     modifier: Modifier
 ) {
@@ -230,9 +226,7 @@ fun MainHuntCreationContent(
             // Sauvegarde de la chasse dans Firestore
             //updateHunt(huntId, huntData, onSuccess)
             publishHunt(huntData, {
-                updateHunt(huntId, huntData) { str ->
-                    onPublishClick()
-                }
+                updateHunt(huntId, huntData, onSuccess)
             }) { exception ->
                 println("Erreur lors de la publication de la chasse ${huntData.id} : $exception")
             }
