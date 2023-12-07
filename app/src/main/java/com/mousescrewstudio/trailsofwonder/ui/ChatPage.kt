@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.mousescrewstudio.trailsofwonder.ui.database.GetAllMessages
 import com.mousescrewstudio.trailsofwonder.ui.database.Message
 import com.mousescrewstudio.trailsofwonder.ui.database.sendMessage
+import com.google.firebase.Timestamp
 
 
 // Page de discussion entre deux utilisateurs
@@ -43,8 +45,11 @@ fun ChatPage(
     receiverId: String
 ) {
 
+    // Toi : on récup l'username
     val senderId = FirebaseAuth.getInstance().currentUser?.uid.toString()
     val senderUsername = FirebaseAuth.getInstance().currentUser?.displayName.toString()
+
+    // L'autre : normalement c'est son username
     var receiverUsername = receiverId
 
     var messageText by remember { mutableStateOf("") }
@@ -76,14 +81,10 @@ fun ChatPage(
                             }
                             else println("Non trouvé")
                         }
-                    } else println("Pas ici")
-                } else println("Non plus")
+                    }
+                }
             }
     }
-
-    println(receiverUsername)
-
-
 
 
     Column(
@@ -92,7 +93,7 @@ fun ChatPage(
             .padding(16.dp)
     ) {
         Text(
-            text = "Chat avec $receiverUsername ($receiverId)",
+            text = "Chat avec $receiverUsername",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -112,11 +113,15 @@ fun ChatPage(
             Button(
                 onClick = {
                     // Envoyer le message
-                    sendMessage(Message(senderId, receiverId, messageText))
+                    sendMessage(Message(senderId, receiverId, messageText, Timestamp.now()))
                     // Effacer le champ de texte
                     messageText = ""
                 },
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.primary
+                )
             ) {
                 Text("Envoyer")
             }
@@ -133,7 +138,7 @@ fun ChatPage(
                 modifier = Modifier
                     .padding(10.dp)
             ) {
-                AfficherMessage(messages, receiverId, receiverUsername)
+                AfficherMessage(messages.sortedBy { it.sendDate }, receiverId, receiverUsername, senderId, senderUsername)
             }
         }
     }
@@ -141,9 +146,15 @@ fun ChatPage(
 
 
 @Composable
-fun AfficherMessage(list : List<Message>, receiverId: String, receiverUsername : String) {
+fun AfficherMessage(list : List<Message>,
+                    receiverId: String, receiverUsername : String,
+                    senderId: String, senderUsername: String)
+{
+ // Je rappelle :
+    // sender = la personne actuelle (toi)
+    // receiver = la personne avec qui ca échange
 
- var color = Color.Black
+ var color: Color
 
  LazyColumn(
      modifier = Modifier
@@ -151,11 +162,10 @@ fun AfficherMessage(list : List<Message>, receiverId: String, receiverUsername :
          .clip(shape = RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp)),
  ) {
      items(list) { msg ->
+         var sender = msg.sender        // Toi
+         val receiver = msg.receiver    // L'autre
 
-         var sender = msg.sender
-
-
-         if(msg.receiver == receiverId) {    // Envoyé par l'autre
+         if(receiver == receiverId) {    // Envoyé par l'autre
              color = Color.Yellow
              sender = receiverUsername
          }

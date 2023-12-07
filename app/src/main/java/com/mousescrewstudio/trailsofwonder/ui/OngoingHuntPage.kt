@@ -6,10 +6,8 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,11 +30,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
-import com.mousescrewstudio.trailsofwonder.ui.database.Indice
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -46,9 +39,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.maps.android.compose.rememberCameraPositionState
 import com.mousescrewstudio.trailsofwonder.MainActivity
 import com.mousescrewstudio.trailsofwonder.ui.database.IndiceWithValidation
 import com.mousescrewstudio.trailsofwonder.ui.database.checkAndUnlockIndice
@@ -59,7 +50,8 @@ import com.mousescrewstudio.trailsofwonder.ui.database.getIndicesFromOngoingHunt
 @Composable
 fun OngoingHuntPage(
     huntId: String,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onVictory: (String) -> Unit,
 ) {
     var indices by remember { mutableStateOf<List<IndiceWithValidation>>(emptyList()) }
     val context = LocalContext.current as MainActivity
@@ -128,14 +120,19 @@ fun OngoingHuntPage(
                 title = {
                     Text(
                         text = "Chasse en cours",
-                        style = MaterialTheme.typography.headlineMedium
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary)
                     }
                 },
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer
             )
         },
     ) { innerPadding ->
@@ -179,10 +176,24 @@ fun OngoingHuntPage(
                     .padding(vertical = 16.dp),
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
+                    contentColor = MaterialTheme.colorScheme.primary
                 )
             ) {
                 Text(text = "Valider la position")
+            }
+            
+            //Spacer(modifier = Modifier.height(5.dp))
+            
+            Button(
+                onClick = { onVictory(huntId) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Text(text = "Tricher pour gagner")
             }
         }
     }

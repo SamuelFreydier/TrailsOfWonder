@@ -2,6 +2,7 @@ package com.mousescrewstudio.trailsofwonder.ui.database
 
 import android.os.Parcelable
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.parcelize.Parcelize
 import kotlin.math.abs
@@ -14,7 +15,9 @@ data class OngoingHunt(
     var huntName: String = "",
     var teamMembers: List<String> = emptyList(),
     var indices: List<IndiceWithValidation> = emptyList(),
-    var currentIndiceOrder: Int = 1
+    var currentIndiceOrder: Int = 1,
+    var launcherId: String = "",
+    var startDate: Timestamp = Timestamp.now()
 ) : Parcelable
 
 // Classe représentant un indice et s'il a été validé ou non
@@ -32,13 +35,46 @@ data class HuntWithIndices(
     var indices: List<IndiceWithValidation> = emptyList()
 ) : Parcelable
 
+// Récupérer la chasse huntId en cours de joueur actif
+fun getOngoingHunt(
+    huntId: String,
+    onSuccess: (OngoingHunt) -> Unit,
+    onFailure: (Exception) -> Unit
+) {
+    val user = FirebaseAuth.getInstance().currentUser
+    println("getOngoingHunt")
+    println(huntId)
+
+    if (user != null) {
+        db.collection("hunts")
+            .document(user.uid)
+            .collection("ongoingHunts")
+            .document(huntId)
+            .get()
+            .addOnSuccessListener { documentSnapshot ->
+                if (documentSnapshot.exists()) {
+                    val ongoingHunt = documentSnapshot.toObject(OngoingHunt::class.java)
+                    if (ongoingHunt != null) {
+                        onSuccess(ongoingHunt)
+                    }
+                    else
+                        println("La chasse est null")
+                } else
+                    println("Pas de chasse avec cet ID")
+            }
+            .addOnFailureListener { exception ->
+                onFailure(exception)
+            }
+    }
+}
+
 // Récupère les détails d'une chasse (y compris les indices)
 fun getHuntDetails(
     huntId: String,
     onSuccess: (HuntWithIndices) -> Unit,
     onFailure: (Exception) -> Unit
 ) {
-    var user = FirebaseAuth.getInstance().currentUser
+    val user = FirebaseAuth.getInstance().currentUser
     if (user != null) {
         db.collection("publishedHunts")
             .document(huntId)
@@ -74,7 +110,7 @@ fun createOngoingHunt(
     onSuccess: (String) -> Unit,
     onFailure: (Exception) -> Unit
 ) {
-    var user = FirebaseAuth.getInstance().currentUser
+    val user = FirebaseAuth.getInstance().currentUser
     println("createOngoing")
     println(huntId)
 
@@ -91,7 +127,9 @@ fun createOngoingHunt(
                     huntId = huntWithIndices.hunt.id,
                     huntName = huntWithIndices.hunt.huntName,
                     teamMembers = teamMembers,
-                    indices = huntWithIndices.indices
+                    indices = huntWithIndices.indices,
+                    launcherId = user.displayName.toString(),
+                    startDate = Timestamp.now()
                 )
 
                 println(huntWithIndices.indices)
@@ -102,10 +140,10 @@ fun createOngoingHunt(
                     .add(ongoingHunt)
                     .addOnSuccessListener { docHuntRef ->
                         println("ongoinghuntadded")
-                        var batch = db.batch()
+                        val batch = db.batch()
                         huntWithIndices.indices.forEach { doc ->
                             println("foreach loop ${doc.indice}")
-                            var docRef = db.collection("hunts")
+                            val docRef = db.collection("hunts")
                                 .document(user.uid)
                                 .collection("ongoingHunts")
                                 .document(docHuntRef.id)
@@ -135,7 +173,7 @@ fun createOngoingHunt(
 
 // Vérifie si l'utilisateur est au bon endroit vis à vis du prochain indice de sa chasse, et si oui, débloque l'indice
 fun checkAndUnlockIndice(huntId: String, currentPos: LatLng, onSuccess: (Boolean) -> Unit, onFailure: (Exception) -> Unit) {
-    var user = FirebaseAuth.getInstance().currentUser
+    val user = FirebaseAuth.getInstance().currentUser
     if(user != null) {
         db.collection("hunts")
             .document(user.uid)
@@ -143,8 +181,8 @@ fun checkAndUnlockIndice(huntId: String, currentPos: LatLng, onSuccess: (Boolean
             .document(huntId)
             .get()
             .addOnSuccessListener {  result ->
-                var ongoingHunt = result.toObject(OngoingHunt::class.java)
-                var currentIndiceOrder = ongoingHunt?.currentIndiceOrder
+                val ongoingHunt = result.toObject(OngoingHunt::class.java)
+                val currentIndiceOrder = ongoingHunt?.currentIndiceOrder
                 if (currentIndiceOrder != null) {
                     getIndiceFromOrderFromOngoingHunt(
                         huntId,
@@ -185,7 +223,7 @@ fun getIndiceFromOrderFromOngoingHunt(
     onSuccess: (IndiceWithValidation, String) -> Unit,
     onFailure: (Exception) -> Unit
 ) {
-    var user = FirebaseAuth.getInstance().currentUser
+    val user = FirebaseAuth.getInstance().currentUser
     if (user != null) {
         db.collection("hunts")
             .document(user.uid)
@@ -197,7 +235,7 @@ fun getIndiceFromOrderFromOngoingHunt(
             .addOnSuccessListener { result ->
                 val indices = result.toObjects(IndiceWithValidation::class.java)
                 if(!indices.isEmpty()) {
-                    var indice = indices.first()
+                    val indice = indices.first()
                     onSuccess(indice, result.documents[indices.indexOf(indice)].id)
                 }
             }
@@ -213,7 +251,7 @@ fun getIndicesFromOngoingHunt(
     onSuccess: (List<IndiceWithValidation>) -> Unit,
     onFailure: (Exception) -> Unit
 ) {
-    var user = FirebaseAuth.getInstance().currentUser
+    val user = FirebaseAuth.getInstance().currentUser
     println("ongoingHunt $ongoingHuntId")
     if (user != null) {
         db.collection("hunts")

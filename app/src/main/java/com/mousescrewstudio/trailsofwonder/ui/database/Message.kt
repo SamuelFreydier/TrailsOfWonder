@@ -1,5 +1,6 @@
 package com.mousescrewstudio.trailsofwonder.ui.database
 
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 
 // Classe représentant un message entre deux utilisateurs
@@ -7,8 +8,9 @@ data class Message(
     val sender: String,
     val receiver: String,
     val content: String,
+    val sendDate: Timestamp,
 ) {
-    constructor() : this("", "", "")
+    constructor() : this("", "", "", Timestamp.now())
 }
 
 // Envoi d'un message

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -24,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -35,11 +37,11 @@ import com.mousescrewstudio.trailsofwonder.ui.database.OngoingHunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getUserHunts
 import com.mousescrewstudio.trailsofwonder.ui.database.getUserOngoingHunts
 
-data class TreasureHunt(val title: String)
+//data class TreasureHunt(val title: String)
 
-val dummyTreasureHunts = List(3) {
+/*val dummyTreasureHunts = List(3) {
     TreasureHunt("Treasure Hunt $it")
-}
+}*/
 
 // Page de profil
 @Composable
@@ -47,21 +49,22 @@ fun ProfilePage(
     username: String,
     onSettingsClick: () -> Unit,
     onEditHuntClick: (String) -> Unit,
-    onJoinOngoingHuntClick: (String) -> Unit
+    onJoinOngoingHuntClick: (String) -> Unit,
+    onChatClick: (String) -> Unit
 ) {
     var userHunts by remember { mutableStateOf(emptyList<Hunt>()) }
     var userOngoingHunts by remember { mutableStateOf(emptyList<OngoingHunt>()) }
-    var selectedTabIndex by remember { mutableStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(0) } // Changé le mutableStateOf par mutableIntStateOf
 
     LaunchedEffect(FirebaseAuth.getInstance().currentUser?.uid) {
         getUserHunts(
             onSuccess = { hunts ->
                 userHunts = hunts
-                println("Chasses récupérées avec succès")
+                println("Chasses récupérées avec succès (profile)")
             },
             onFailure = { exception ->
                 // Erreur à gérer
-                println("Erreur lors de la récupération des chasses : $exception")
+                println("Erreur lors de la récupération des chasses : $exception (profile)")
             }
         )
 
@@ -157,7 +160,8 @@ fun ProfilePage(
                     items(userOngoingHunts) { userHunt ->
                         ProfileOngoingHuntItem(
                             hunt = userHunt,
-                            onJoinClick = { onJoinOngoingHuntClick(it) }
+                            onJoinClick = { onJoinOngoingHuntClick(it) },
+                            onChatClick = onChatClick
                         )
                     }
                 }
@@ -196,7 +200,10 @@ fun ProfileHuntItem(hunt: Hunt, onEditClick: (String) -> Unit) {
 
 // Représente une chasse à laquelle un utilisateur participe
 @Composable
-fun ProfileOngoingHuntItem(hunt: OngoingHunt, onJoinClick: (String) -> Unit) {
+fun ProfileOngoingHuntItem(hunt: OngoingHunt,
+                           onJoinClick: (String) -> Unit,
+                           onChatClick: (String) -> Unit)
+{
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -210,13 +217,28 @@ fun ProfileOngoingHuntItem(hunt: OngoingHunt, onJoinClick: (String) -> Unit) {
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        Button(
-            onClick = { onJoinClick(hunt.id) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-        ) {
-            Text("Reprendre")
+        Row {
+            Button(
+                onClick = { onJoinClick(hunt.id) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .weight(1f)
+            ) {
+                Text("Reprendre")
+            }
+
+            Spacer(modifier = Modifier.width(5.dp))
+
+            Button(
+                onClick = { onChatClick(hunt.launcherId) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .weight(1f)
+            ) {
+                Text("Chat")
+            }
         }
     }
 }

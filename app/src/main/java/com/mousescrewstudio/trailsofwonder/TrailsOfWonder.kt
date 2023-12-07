@@ -9,6 +9,7 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddLocationAlt
@@ -150,13 +151,17 @@ fun TrailsOfWonderApp(
                 enter = slideInVertically(initialOffsetY = {it}),
                 exit = slideOutVertically(targetOffsetY = {it})
             ) {
-                BottomNavigation() {
+                BottomNavigation(backgroundColor = MaterialTheme.colorScheme.primaryContainer) {
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
                     val currentDestination = navBackStackEntry?.destination
                     screenItems.forEach { screen ->
                         BottomNavigationItem(
-                            icon = { Icon(screen.imageVector, contentDescription = null) },
-                            label = { Text(stringResource(screen.resourceId))},
+                            icon = { Icon(
+                                screen.imageVector, contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary)},
+                            label = { Text(
+                                stringResource(screen.resourceId),
+                                color = MaterialTheme.colorScheme.primary)},
                             selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                             onClick = {
                                 navController.navigate(screen.route) {
@@ -241,12 +246,10 @@ fun TrailsOfWonderApp(
                 }
 
             }
-            composable(HUNT_JOIN_ROUTE) { HuntJoinPage (
-                onHuntClicked = {huntId ->
-                    navController.navigate("$HUNT_SUMMARY_ROUTE/$huntId")
-                },
-                chatPage = {navController.navigate(CHAT_PAGE) }
-            ) }
+            composable(HUNT_JOIN_ROUTE) { HuntJoinPage { huntId ->
+                navController.navigate("$HUNT_SUMMARY_ROUTE/$huntId")
+            }
+            }
             composable(
                 route = "$HUNT_SUMMARY_ROUTE/{huntId}",
                 arguments = listOf(
@@ -275,7 +278,9 @@ fun TrailsOfWonderApp(
                     },
                     onJoinOngoingHuntClick = { ongoingHuntId ->
                         navController.navigate("$ONGOING_HUNT_ROUTE/$ongoingHuntId")
-                    }
+                    },
+                    onChatClick = { receiverId ->
+                        navController.navigate("$CHAT_PAGE/$receiverId") }
                 )
             }
             composable(SETTINGS_ROUTE) {
@@ -376,7 +381,7 @@ fun TrailsOfWonderApp(
             }
 
             composable(
-                "ChatPage/{receiverId}",
+                route = "$CHAT_PAGE/{receiverId}",
                 arguments = listOf(
                     navArgument("receiverId") {type = NavType.StringType })
             ) { backStackEntry ->
@@ -420,19 +425,22 @@ fun TrailsOfWonderApp(
                             popUpTo(navController.graph.id) {
                                 inclusive = true
                             }
-                        }}
+                        }},
+                        onVictory = { huntId ->
+                            navController.navigate("$VICTORY_PAGE/$huntId")
+                        }
                     )
                 }
             }
 
             composable(
-                "VictoryPage/{huntId}",
+                route = "$VICTORY_PAGE/{huntId}",
                 arguments = listOf(
                     navArgument("huntId") {type = NavType.StringType })
             ) { backStackEntry ->
                 val huntId = backStackEntry.arguments?.getString("huntId")
                 if(huntId != null) VictoryPage(
-                    retourMenu = { navController.navigate(WELCOME_ROUTE)},
+                    retourMenu = { navController.navigate(PROFILE_ROUTE)},
                     huntId)
             }
 

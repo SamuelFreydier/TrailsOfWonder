@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,7 +16,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Card
 import androidx.compose.material.Surface
 import androidx.compose.material.TextField
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,8 +28,6 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.toUpperCase
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
@@ -42,8 +38,7 @@ import java.util.UUID
 // Page de participation à une chasse (également page d'accueil)
 @Composable
 fun HuntJoinPage(
-    onHuntClicked: (String) -> Unit,
-    chatPage: () -> Unit
+    onHuntClicked: (String) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
     var tagText by remember { mutableStateOf(TextFieldValue()) }
@@ -229,7 +224,7 @@ fun filterHunt(
 }
 
 // Chasses factices pour debug
-fun generateHunts(): List<Hunt> {
+/*fun generateHunts(): List<Hunt> {
     var x = mutableListOf<Hunt>()
     x = listOf(
         Hunt("Un", "Paris", 1, 1, 1, listOf<String>("1")),
@@ -243,4 +238,4 @@ fun generateHunts(): List<Hunt> {
 
     return x
 
-}
+}*/

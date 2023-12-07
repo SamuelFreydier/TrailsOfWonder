@@ -88,7 +88,7 @@ fun getPublishedHuntById(huntId: String, onSuccess: (Hunt) -> Unit, onFailure: (
         .document(huntId)
         .get()
         .addOnSuccessListener { result ->
-            var hunt = result.toObject(Hunt::class.java)
+            val hunt = result.toObject(Hunt::class.java)
             if (hunt != null) {
                 hunt.id = result.id
                 onSuccess(hunt)
@@ -113,14 +113,14 @@ fun publishHunt(hunt: Hunt, onSuccess: () -> Unit, onFailure: (Exception) -> Uni
                 hunt.creatorUsername = user.displayName.toString()
 
                 getIndicesFromHunt(hunt.id, { indices ->
-                    var batch = db.batch()
+                    val batch = db.batch()
 
                     // Nouvelle publication
                     db.collection("publishedHunts")
                         .add(hunt)
                         .addOnSuccessListener { docHuntRef ->
                             indices.forEach { doc ->
-                                var docRef = db.collection("publishedHunts")
+                                val docRef = db.collection("publishedHunts")
                                     .document(docHuntRef.id)
                                     .collection("indices")
                                     .document()
