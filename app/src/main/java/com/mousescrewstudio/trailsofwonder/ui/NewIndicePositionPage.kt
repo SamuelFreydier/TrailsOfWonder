@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
@@ -18,6 +19,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,7 +54,7 @@ fun NewIndicePositionPage(
     val context = LocalContext.current as MainActivity
     var userLocation by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val zoomAmount = 18f
-    var cameraPositionState = rememberCameraPositionState {
+    val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(userLocation, zoomAmount)
     }
     context.fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -103,13 +105,17 @@ fun NewIndicePositionPage(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Position du nouvel indice")
+                    Text(text = "Position du nouvel indice",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary)
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(Icons.Default.ArrowBack, contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary)
                     }
-                }
+                },
+                backgroundColor = MaterialTheme.colorScheme.primaryContainer
             )
         },
     ) { innerPadding ->
@@ -139,9 +145,11 @@ fun NewIndicePositionPage(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 16.dp),
+                colors  = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
             ) {
-                Text(text = "Valider la position")
+                Text(text = "Valider la position",
+                    color = MaterialTheme.colorScheme.primary)
             }
         }
 

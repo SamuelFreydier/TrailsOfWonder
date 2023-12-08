@@ -127,8 +127,7 @@ fun NewPasswordPage(
 }
 
 fun resetPassword(newPassword: String, onSuccess: () -> Unit, context: Context) {
-    val auth = FirebaseAuth.getInstance()
-    val user = auth.currentUser
+    val user = FirebaseAuth.getInstance().currentUser
     if (user != null) {
         user.updatePassword(newPassword)
             .addOnCompleteListener { task ->

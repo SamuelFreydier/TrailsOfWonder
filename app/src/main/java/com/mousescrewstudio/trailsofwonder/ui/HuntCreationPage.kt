@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -87,7 +88,9 @@ fun HuntCreationPage(
                             Icon(Icons.Default.ArrowBack, contentDescription = null)
                         }
                     },
-                    title = { Text(text = "Édition de chasse au trésor") },
+                    title = { Text(text = "Édition de chasse au trésor",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.primary) },
                 )
             }
         ) { innerPadding ->
@@ -118,13 +121,13 @@ fun MainHuntCreationContent(
 ) {
     var hunt by remember { mutableStateOf(Hunt()) }
 
-    var huntName by remember { mutableStateOf(hunt.huntName ?: "") }
-    var location by remember { mutableStateOf(hunt.location ?: "") }
+    var huntName by remember { mutableStateOf(hunt.huntName) }
+    var location by remember { mutableStateOf(hunt.location) }
     val difficultyItems = listOf("Facile", "Moyen", "Difficile")
     var difficultyExpanded by remember { mutableStateOf(false) }
-    var difficultyIndex by remember { mutableIntStateOf(hunt.difficulty ?: 0) }
-    var durationHours by remember { mutableIntStateOf(hunt.durationHours ?: 0) }
-    var durationMinutes by remember { mutableIntStateOf(hunt.durationMinutes ?: 0) }
+    var difficultyIndex by remember { mutableIntStateOf(hunt.difficulty) }
+    var durationHours by remember { mutableIntStateOf(hunt.durationHours) }
+    var durationMinutes by remember { mutableIntStateOf(hunt.durationMinutes) }
 
     var tagsWithIds by remember { mutableStateOf(listOf<TagItemData>()) }
 
@@ -366,9 +369,11 @@ fun MainHuntCreationContent(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp)
+                    .height(56.dp),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
             ) {
-                Text("Indices")
+                Text("Indices",
+                    color = MaterialTheme.colorScheme.primary)
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -389,9 +394,11 @@ fun MainHuntCreationContent(
                     modifier = Modifier
                         .weight(1f)
                         .height(56.dp)
-                        .padding(end = 8.dp)
+                        .padding(end = 8.dp),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
                 ) {
-                    Text("Sauvegarder")
+                    Text("Sauvegarder",
+                        color = MaterialTheme.colorScheme.primary)
                 }
 
                 // Boutons de suppression et de publication que en mode édition
@@ -407,9 +414,11 @@ fun MainHuntCreationContent(
                         modifier = Modifier
                             .weight(1f)
                             .height(56.dp)
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = 8.dp),
+                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
                     ) {
-                        Text("Supprimer")
+                        Text("Supprimer",
+                            color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }

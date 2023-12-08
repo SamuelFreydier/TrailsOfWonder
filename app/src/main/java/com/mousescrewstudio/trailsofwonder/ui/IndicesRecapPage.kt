@@ -24,21 +24,17 @@ import androidx.compose.material.icons.filled.DragIndicator
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.dp
-import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 import com.mousescrewstudio.trailsofwonder.ui.database.Indice
 import com.mousescrewstudio.trailsofwonder.ui.database.deleteIndice
 import com.mousescrewstudio.trailsofwonder.ui.database.getIndicesFromHunt
-import com.mousescrewstudio.trailsofwonder.ui.database.getUserHunts
 import com.mousescrewstudio.trailsofwonder.ui.database.updateIndiceOrder
 import kotlinx.parcelize.Parcelize
 import org.burnoutcrew.reorderable.ReorderableItem
@@ -60,17 +56,24 @@ fun IndicesRecapPage(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = "Indices") },
+                title = { Text(
+                    text = "Indices",
+                    style = androidx.compose.material3.MaterialTheme.typography.headlineMedium,
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.primary) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClick() }) {
-                        Icon(imageVector = Icons.Default.ArrowBack, contentDescription = null)
+                        Icon(imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
                     }
                 },
                 actions = {
                     IconButton(onClick = { onAddIndexClick() }) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                        Icon(imageVector = Icons.Default.Add, contentDescription = null,
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.primary)
                     }
-                }
+                },
+                backgroundColor = androidx.compose.material3.MaterialTheme.colorScheme.primaryContainer
             )
         }
     ) {

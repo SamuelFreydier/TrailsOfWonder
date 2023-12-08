@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -191,9 +192,11 @@ fun ProfileHuntItem(hunt: Hunt, onEditClick: (String) -> Unit) {
             onClick = { onEditClick(hunt.id) },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(40.dp)
+                .height(40.dp),
+            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
         ) {
-            Text("Éditer")
+            Text("Éditer",
+                color = MaterialTheme.colorScheme.primary)
         }
     }
 }
@@ -223,9 +226,11 @@ fun ProfileOngoingHuntItem(hunt: OngoingHunt,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp)
-                    .weight(1f)
+                    .weight(1f),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
             ) {
-                Text("Reprendre")
+                Text("Reprendre",
+                    color = MaterialTheme.colorScheme.primary)
             }
 
             Spacer(modifier = Modifier.width(5.dp))
@@ -235,9 +240,11 @@ fun ProfileOngoingHuntItem(hunt: OngoingHunt,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp)
-                    .weight(1f)
+                    .weight(1f),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
             ) {
-                Text("Chat")
+                Text("Chat",
+                    color = MaterialTheme.colorScheme.primary)
             }
         }
     }

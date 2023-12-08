@@ -27,13 +27,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
 import com.mousescrewstudio.trailsofwonder.ui.database.Hunt
 import com.mousescrewstudio.trailsofwonder.ui.database.getPublishedHunts
 import com.mousescrewstudio.trailsofwonder.ui.database.predefinedTags
 import java.util.UUID
+//import androidx.compose.ui.text.input.TextFieldValue
 
 // Page de participation à une chasse (également page d'accueil)
 @Composable
@@ -41,7 +41,7 @@ fun HuntJoinPage(
     onHuntClicked: (String) -> Unit
 ) {
     var query by remember { mutableStateOf("") }
-    var tagText by remember { mutableStateOf(TextFieldValue()) }
+    //var tagText by remember { mutableStateOf(TextFieldValue()) }
     var tagsWithIds by remember { mutableStateOf(listOf<TagItemData>()) }
     var publishedHunts by remember { mutableStateOf(emptyList<Hunt>()) }
     var filteredPublishedHunts by remember { mutableStateOf(emptyList<Hunt>()) }

@@ -2,16 +2,17 @@ package com.mousescrewstudio.trailsofwonder.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -24,7 +25,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.google.android.gms.maps.model.LatLng
 import com.mousescrewstudio.trailsofwonder.ui.database.Indice
 import com.mousescrewstudio.trailsofwonder.ui.database.getIndiceFromId
 import com.mousescrewstudio.trailsofwonder.ui.database.saveIndice
@@ -43,8 +43,8 @@ fun NewIndiceConfigPage(
     onBackClick: () -> Unit
 ) {
     var indice by remember { mutableStateOf(Indice()) }
-    var indiceName by remember { mutableStateOf(indice.name ?: "") }
-    var indiceDescription by remember { mutableStateOf(indice.description ?: "") }
+    var indiceName by remember { mutableStateOf(indice.name) }
+    var indiceDescription by remember { mutableStateOf(indice.description) }
     var indicePassword by remember { mutableStateOf(indice.password ?: "") }
     var indiceLatitude by remember { mutableStateOf(if(!editMode) latitude else indice.latitude) }
     var indiceLongitude by remember { mutableStateOf(if(!editMode) longitude else indice.longitude) }
@@ -136,18 +136,22 @@ fun NewIndiceConfigPage(
                                 longitude = longitude // Set coordinates accordingly
                             )
 
-                        if (newIndice != null) {
+                        /*if (newIndice != null) {
                             saveIndice(newIndice, onIndiceConfigured)
-                        }
+                        }*/ // Android Studio dis que c'est toujours vrai donc :
+                        saveIndice(newIndice, onIndiceConfigured)
+
                     } else if ( editMode ) { // Edition d'un indice existant
                         updateIndice(indice, indiceName, indiceDescription, indicePassword, onIndiceConfigured)
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(vertical = 16.dp)
+                    .padding(vertical = 16.dp),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
             ) {
-                Text(text = "Valider")
+                Text(text = "Valider",
+                    color = MaterialTheme.colorScheme.primary)
             }
         }
 
