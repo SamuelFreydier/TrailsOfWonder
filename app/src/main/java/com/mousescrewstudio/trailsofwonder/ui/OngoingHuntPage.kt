@@ -32,7 +32,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.core.content.ContextCompat
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
@@ -104,8 +106,11 @@ fun OngoingHuntPage(
         // Récupérer la liste des indices de la chasse en cours depuis Firebase
         getIndicesFromOngoingHunt(
             ongoingHuntId = huntId,
-            onSuccess = { fetchedIndices ->
+            onSuccess = { fetchedIndices, allIndicesFound ->
                 indices = fetchedIndices
+                if(allIndicesFound) {
+                    onVictory(huntId)
+                }
             },
             onFailure = { exception ->
                 // Gestion des erreurs lors de la récupération des indices
@@ -145,6 +150,11 @@ fun OngoingHuntPage(
             // Afficher la liste des indices
             OngoingHuntIndicesList(indices = indices)
 
+            Text("Déplacez vous au prochain indice pour valider",
+                fontStyle = FontStyle.Italic,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center)
+
             // Bouton pour valider la position
             Button(
                 onClick = {
@@ -155,8 +165,11 @@ fun OngoingHuntPage(
                                   if(validated) {
                                       getIndicesFromOngoingHunt(
                                           ongoingHuntId = huntId,
-                                          onSuccess = { fetchedIndices ->
+                                          onSuccess = { fetchedIndices, allIndicesFound ->
                                               indices = fetchedIndices
+                                              if(allIndicesFound) {
+                                                  onVictory(huntId)
+                                              }
                                           },
                                           onFailure = { exception ->
                                               // Gestion des erreurs lors de la récupération des indices

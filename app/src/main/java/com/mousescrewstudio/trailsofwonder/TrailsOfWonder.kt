@@ -440,7 +440,11 @@ fun TrailsOfWonderApp(
             ) { backStackEntry ->
                 val huntId = backStackEntry.arguments?.getString("huntId")
                 if(huntId != null) VictoryPage(
-                    retourMenu = { navController.navigate(PROFILE_ROUTE)},
+                    retourMenu = { navController.navigate(HUNT_JOIN_ROUTE) {
+                        popUpTo(navController.graph.id) {
+                            inclusive = true
+                        }
+                    } },
                     huntId)
             }
 

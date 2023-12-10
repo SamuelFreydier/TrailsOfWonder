@@ -248,7 +248,7 @@ fun getIndiceFromOrderFromOngoingHunt(
 // Récupère les indices débloqués d'une chasse en cours
 fun getIndicesFromOngoingHunt(
     ongoingHuntId: String,
-    onSuccess: (List<IndiceWithValidation>) -> Unit,
+    onSuccess: (List<IndiceWithValidation>, Boolean) -> Unit,
     onFailure: (Exception) -> Unit
 ) {
     val user = FirebaseAuth.getInstance().currentUser
@@ -266,7 +266,8 @@ fun getIndicesFromOngoingHunt(
                 val updatedIndices = indices.filter { indice -> indice.isValidated }
                     .sortedBy { it.indice.order }
                 println("updatedIndices $updatedIndices")
-                onSuccess(updatedIndices)
+                val allIndicesFound = indices.size == updatedIndices.size
+                onSuccess(updatedIndices, allIndicesFound)
             }
             .addOnFailureListener { exception ->
                 onFailure(exception)
