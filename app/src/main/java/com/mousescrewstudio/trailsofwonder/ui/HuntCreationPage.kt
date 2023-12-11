@@ -88,7 +88,7 @@ fun HuntCreationPage(
                             Icon(Icons.Default.ArrowBack, contentDescription = null)
                         }
                     },
-                    title = { Text(text = "Édition de chasse au trésor",
+                    title = { Text(text = "Édition de chasse",
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.primary) },
                 )

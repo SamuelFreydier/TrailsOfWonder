@@ -17,6 +17,9 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -123,7 +126,7 @@ fun ChatPage(
                     contentColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text("Envoyer")
+                Icon(imageVector = Icons.Default.Send, contentDescription = null)
             }
         }
 

@@ -105,7 +105,7 @@ fun NewIndicePositionPage(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Position du nouvel indice",
+                    Text(text = "Position de l'indice",
                         style = MaterialTheme.typography.headlineMedium,
                         color = MaterialTheme.colorScheme.primary)
                 },

@@ -290,7 +290,10 @@ fun getUserOngoingHunts(onSuccess: (List<OngoingHunt>) -> Unit, onFailure: (Exce
             .get()
             .addOnSuccessListener { result ->
                 val hunts = result.toObjects(OngoingHunt::class.java)
-                val updatedHunts = hunts.map {
+                val notFinishedHunts = hunts.filter {ongoingHunt ->
+                    ongoingHunt.currentIndiceOrder < ongoingHunt.indices.size && ongoingHunt.indices.isNotEmpty()
+                }
+                val updatedHunts = notFinishedHunts.map {
                     it.copy(id = result.documents[hunts.indexOf(it)].id)
                 }
                 onSuccess(updatedHunts)
