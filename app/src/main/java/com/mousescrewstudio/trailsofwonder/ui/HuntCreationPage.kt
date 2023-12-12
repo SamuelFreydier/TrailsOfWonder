@@ -372,7 +372,7 @@ fun MainHuntCreationContent(
                     .height(56.dp),
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primaryContainer)
             ) {
-                Text("Indices",
+                Text("Ajouter Indices",
                     color = MaterialTheme.colorScheme.primary)
             }
 

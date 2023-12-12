@@ -150,7 +150,7 @@ fun OngoingHuntPage(
             // Afficher la liste des indices
             OngoingHuntIndicesList(indices = indices)
 
-            Text("Déplacez vous au prochain indice pour valider",
+            Text("Déplacez vous au prochain indice pour valider votre position",
                 fontStyle = FontStyle.Italic,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center)
@@ -197,7 +197,7 @@ fun OngoingHuntPage(
             
             //Spacer(modifier = Modifier.height(5.dp))
             
-            Button(
+            /*Button(
                 onClick = { onVictory(huntId) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -207,7 +207,7 @@ fun OngoingHuntPage(
                     contentColor = MaterialTheme.colorScheme.primary)
             ) {
                 Text(text = "Tricher pour gagner")
-            }
+            }*/
         }
     }
 }
