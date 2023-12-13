@@ -34,7 +34,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.mousescrewstudio.trailsofwonder.ui.database.GetAllMessages
 import com.mousescrewstudio.trailsofwonder.ui.database.Message
 import com.mousescrewstudio.trailsofwonder.ui.database.sendMessage
@@ -49,24 +48,25 @@ fun ChatPage(
 ) {
 
     // Toi : on récup l'username
-    val senderId = FirebaseAuth.getInstance().currentUser?.uid.toString()
+    //val senderId = FirebaseAuth.getInstance().currentUser?.uid.toString()
     val senderUsername = FirebaseAuth.getInstance().currentUser?.displayName.toString()
 
     // L'autre : normalement c'est son username
-    var receiverUsername = receiverId
+    val receiverUsername = receiverId
 
     var messageText by remember { mutableStateOf("") }
     var messages by remember { mutableStateOf<List<Message>>(emptyList()) }
 
     LaunchedEffect(FirebaseAuth.getInstance().currentUser?.uid) {
-        GetAllMessages(senderId) { loadedMessages ->
+        GetAllMessages(senderUsername) { loadedMessages ->
             messages = loadedMessages
         }
-        GetAllMessages(receiverId) { loadedMessages ->
+        GetAllMessages(receiverUsername) { loadedMessages ->
             messages = messages + loadedMessages
         }
+        println("Messages récupérés avec succès pour $senderUsername et $receiverUsername")
 
-        val firestore = FirebaseFirestore.getInstance()
+        /*val firestore = FirebaseFirestore.getInstance()
         val fireCollection = firestore.collection("username")
         val fireDocument = fireCollection.document("UsernameList")
 
@@ -86,7 +86,7 @@ fun ChatPage(
                         }
                     }
                 }
-            }
+            }*/
     }
 
 
@@ -116,7 +116,7 @@ fun ChatPage(
             Button(
                 onClick = {
                     // Envoyer le message
-                    sendMessage(Message(senderId, receiverId, messageText, Timestamp.now()))
+                    sendMessage(Message(senderUsername, receiverUsername, messageText, Timestamp.now()))
                     // Effacer le champ de texte
                     messageText = ""
                 },
@@ -141,7 +141,7 @@ fun ChatPage(
                 modifier = Modifier
                     .padding(10.dp)
             ) {
-                AfficherMessage(messages.sortedBy { it.sendDate }, receiverId, receiverUsername, senderId, senderUsername)
+                AfficherMessage(messages.sortedBy { it.sendDate }, receiverUsername, senderUsername)
             }
         }
     }
@@ -150,12 +150,9 @@ fun ChatPage(
 
 @Composable
 fun AfficherMessage(list : List<Message>,
-                    receiverId: String, receiverUsername : String,
-                    senderId: String, senderUsername: String)
+                    receiverUsername : String,
+                    senderUsername: String)
 {
- // Je rappelle :
-    // sender = la personne actuelle (toi)
-    // receiver = la personne avec qui ca échange
 
  var color: Color
 
@@ -165,16 +162,14 @@ fun AfficherMessage(list : List<Message>,
          .clip(shape = RoundedCornerShape(15.dp, 15.dp, 0.dp, 0.dp)),
  ) {
      items(list) { msg ->
-         var sender = msg.sender        // Toi
-         val receiver = msg.receiver    // L'autre
+         val sender = msg.sender
+         val receiver = msg.receiver
 
-         if(receiver == receiverId) {    // Envoyé par l'autre
+         if(receiver == senderUsername) {    // Envoyé par l'autre = toi qui l'a recu
              color = Color.Yellow
-             sender = receiverUsername
          }
          else {
-             color = Color.LightGray // Envoyé par toi-même
-             sender = FirebaseAuth.getInstance().currentUser?.displayName.toString()
+             color = Color.LightGray
          }
 
          Box(

@@ -128,7 +128,8 @@ fun createOngoingHunt(
                     huntName = huntWithIndices.hunt.huntName,
                     teamMembers = teamMembers,
                     indices = huntWithIndices.indices,
-                    launcherId = user.displayName.toString(),
+                    launcherId = huntWithIndices.hunt.creatorUsername,
+                    //user.displayName.toString(),
                     startDate = Timestamp.now()
                 )
 
